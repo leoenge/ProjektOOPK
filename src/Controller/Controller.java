@@ -1,18 +1,18 @@
 package Controller;
 
 import View.*;
-import Model.*;
+//import Model.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Controller implements ActionListener {
-    private Model model;
+    //private Model model;
     public View view;
 
-    public void askUser(Connection requestConnection, Request request) {
+    //public void askUser(Connection requestConnection, Request request) {
 
-    }
+    //}
 
     public void askUserFileRequest() {
 

@@ -12,7 +12,8 @@ public class ControlPanel extends JPanel {
     JComboBox chooseChatBox;
 
     ControlPanel() {
-        this.setLayout(new GridLayout(1,5));
+        this.setPreferredSize(new Dimension(500,75));
+        this.setLayout(new FlowLayout());
 
         connectButton = new JButton("Connect");
         chatSettingsButton = new JButton("Chat Settings");
@@ -25,5 +26,6 @@ public class ControlPanel extends JPanel {
         this.add(closeChatButton);
         this.add(closeConnectionButton);
         this.add(chooseChatBox);
+        this.setVisible(true);
     }
 }

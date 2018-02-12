@@ -1,24 +1,32 @@
 package View;
 
 import javax.swing.*;
+import java.awt.*;
 
-public class View extends JFrame {
-    Model model;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+
+public class View {
+    //Model model;
+    JFrame frame;
     ControlPanel controlPanel;
     ChatPanel chatPanel;
     SendPanel sendPanel;
 
-    public View(Model modelIn) {
-        model = modelIn;
+    public View(/*Model modelIn*/) {
+        //model = modelIn;
+        frame = new JFrame();
+        frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+
         controlPanel = new ControlPanel();
         chatPanel = new ChatPanel();
         sendPanel = new SendPanel();
 
-        this.add(controlPanel);
-        this.add(chatPanel);
-        this.add(sendPanel);
-        this.pack();
-        this.setVisible(true);
+        frame.add(controlPanel);
+        frame.add(chatPanel);
+        frame.add(sendPanel);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
     public void updateView() {
@@ -27,6 +35,6 @@ public class View extends JFrame {
 
     //TEST METHOD DON'T TOUCH
     public static void main(String[] args) {
-
+        View view = new View();
     }
 }

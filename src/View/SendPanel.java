@@ -1,20 +1,26 @@
 package View;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class SendPanel extends JPanel   {
     JButton sendButton;
     JButton fileButton;
-    JTextPane messageTextArea;
+    JTextPane messageTextPane;
 
     SendPanel() {
+        this.setLayout(new BoxLayout(this,BoxLayout.X_AXIS));
+        this.setPreferredSize(new Dimension(500,100));
+
         sendButton = new JButton("Send");
         fileButton = new JButton("Send file");
-        messageTextArea = new JTextPane();
+        messageTextPane = new JTextPane();
+        messageTextPane.setPreferredSize(new Dimension(400, 100));
 
+        this.add(messageTextPane);
         this.add(sendButton);
         this.add(fileButton);
-        this.add(messageTextArea);
+
         this.setVisible(true);
     }
 }
