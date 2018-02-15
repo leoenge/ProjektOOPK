@@ -1,19 +1,20 @@
 package View;
 
 import javax.swing.*;
+import Model.*
 import java.awt.*;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class View {
-    //Model model;
+    Model model;
     JFrame frame;
     ControlPanel controlPanel;
     ChatPanel chatPanel;
     SendPanel sendPanel;
 
-    public View(/*Model modelIn*/) {
-        //model = modelIn;
+    public View(Model modelIn) {
+        model = modelIn;
         frame = new JFrame();
         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
 

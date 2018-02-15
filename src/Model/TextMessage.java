@@ -1,10 +1,18 @@
 package Model;
 
 public class TextMessage extends Message {
-    public String textColor;
-    public String senderName;
-    public String fontType;
+    String textColor;
+    String senderName;
+    String fontType;
+    String encryptedText;
 
+    TextMessage(String text, String encryptedIn, String name) {
+        message = text;
+        senderName = name;
+        textColor = null;
+        fontType = null;
+        encryptedText = encryptedIn;
+    }
 
     @Override
     public String toXML() {
