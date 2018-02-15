@@ -21,7 +21,7 @@ public class MessageFactory {
     private String
     */
 
-    Message messageFactory(InputStream inputStream) {
+    static Message messageFactory(InputStream inputStream) {
 
         //Instantiate factory and DocumentBuilder
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -51,48 +51,73 @@ public class MessageFactory {
 
         //Check if tag is a TextMessage.
         if (firstTag.getTagName().equals("message")) {
-            String text = null;
-            String encryptedText = null;
-            String name = firstTag.getAttribute("name");
-
-            NodeList childNodes = firstTag.getChildNodes();
-            Node textTag;
-
-            try {
-                textTag = childNodes.item(0);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                return null;
-            }
-
-            //The only child should be <text></text>, if it is not the message is not correctly formatted.
-            //and we return null.
-            if (textTag.getNodeName().equals("text") && textTag.getChildNodes().getLength() == 1) {
-
-                //Check for encryption tag.
-                if (textTag.hasChildNodes()) {
-                    //If it has children, there should be only one child which should be the encrypted tag.
-                    //If it isn't, we return null
-                    if (textTag.getChildNodes().getLength() == 1
-                            && textTag.getFirstChild().getNodeName().equals("encrypted")) {
-                        encryptedText = textTag.getFirstChild().getNodeValue();
-                    } else {
-                        return null;
-                    }
-
-                }
-
-                text = textTag.getNodeValue();
-
-            } else {
-                return null;
-            }
-
-            return new TextMessage(text, encryptedText, name);
+            return createTextMessage(firstTag);
         }
 
         else if (firstTag.getTagName().equals("filerequest")) {
-            String fileName;
-            int portNumber;
+            return createFileRequest(firstTag);
         }
+    }
+
+    private static Message createTextMessage(Element textElement) {
+
+        String text = null;
+        String encryptedText = null;
+        String name = textElement.getAttribute("name");
+
+        NodeList childNodes = textElement.getChildNodes();
+        Node textTag;
+
+        try {
+            textTag = childNodes.item(0);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
+
+        //The only child should be <text></text>, if it is not the message is not correctly formatted.
+        //and we return null.
+        if (textTag.getNodeName().equals("text") && textTag.getChildNodes().getLength() == 1) {
+
+            //Check for encryption tag.
+            if (textTag.hasChildNodes()) {
+                //If it has children, there should be only one child which should be the encrypted tag.
+                //If it isn't, we return null
+                if (textTag.getChildNodes().getLength() == 1
+                        && textTag.getFirstChild().getNodeName().equals("encrypted")) {
+                    encryptedText = textTag.getFirstChild().getNodeValue();
+                } else {
+                    return null;
+                }
+            }
+
+            text = textTag.getNodeValue();
+
+        } else {
+            return null;
+        }
+
+
+        return new TextMessage(text, encryptedText, name);
+
+    }
+
+    private static Message createFileRequest(Element fileRequestElement) {
+        String fileName = fileRequestElement.getAttribute("name");
+        String userText = fileRequestElement.getNodeValue();
+        int fileSize;
+
+        try {
+            fileSize = Integer.parseInt(fileRequestElement.getAttribute("size"));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return new FileRequest(userText, fileName, fileSize);
+    }
+
+    private static Message createFileResponse(Element fileResponseElement) {
+        String reply;
+        int portNumber;
     }
 }
