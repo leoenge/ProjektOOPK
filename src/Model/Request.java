@@ -13,6 +13,14 @@ public class Request extends Message {
     }
     @Override
     public String toXML() {
-        return null;
+        String outXML = "";
+
+        if (!reply) {
+            outXML += "<request reply=\"no\">" + message + "</request>";
+        } else {
+            outXML += "<request>" + message + "</request>";
+        }
+
+        return outXML;
     }
 }
