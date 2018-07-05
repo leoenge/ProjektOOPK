@@ -7,11 +7,11 @@ import java.awt.*;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class View {
-    Model model;
+    private Model model;
     JFrame frame;
-    ControlPanel controlPanel;
-    ChatPanel chatPanel;
-    SendPanel sendPanel;
+    private ControlPanel controlPanel;
+    private ChatPanel chatPanel;
+    private SendPanel sendPanel;
 
     public View(Model modelIn) {
         model = modelIn;

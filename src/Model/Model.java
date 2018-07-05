@@ -1,12 +1,29 @@
 package Model;
 
-public class Model {
-    public Chat[] chats;
-    public Chat activeChat;
-    public ConnectionReceiver connectionReceiver;
+import View.View;
 
-    public Model() {
+import java.util.ArrayList;
+
+public class Model {
+
+    static Model modelInstance = new Model();
+
+    ArrayList<Chat> chats;
+    Chat activeChat;
+    ConnectionReceiver connectionReceiver;
+    View view;
+
+    private Model() {
+        chats = new ArrayList<Chat>();
+        view = new View(this);
     }
-    public void createChat(Connection connection){}
+    public void createChat(Connection connection) {
+        Connection[] connectionArr = new Connection[] {connection};
+        chats.add(new Chat(connectionArr, ChatSettings.getInstance());
+
+        if (chats.size() == 1) {
+            activeChat = chats.get(0);
+        }
+    }
     public void addToChat(Connection connection, Chat chat){}
 }
