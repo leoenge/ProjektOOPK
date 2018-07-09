@@ -1,17 +1,17 @@
 package View;
 
 import javax.swing.*;
-import Model.*
+import Model.*;
 import java.awt.*;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class View {
-    Model model;
+    private Model model;
     JFrame frame;
-    ControlPanel controlPanel;
-    ChatPanel chatPanel;
-    SendPanel sendPanel;
+    private ControlPanel controlPanel;
+    private ChatPanel chatPanel;
+    private SendPanel sendPanel;
 
     public View(Model modelIn) {
         model = modelIn;
@@ -36,6 +36,7 @@ public class View {
 
     //TEST METHOD DON'T TOUCH
     public static void main(String[] args) {
-        View view = new View();
+        View view = new View(Model.getInstance());
     }
+    //I touched it xD
 }

@@ -6,17 +6,18 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.management.modelmbean.XMLParseException;
 import javax.xml.parsers.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
 
-
 //TODO: Add warning to the user that something went wrong if MessageFactory returns null.
+//TODO: Create support for disconnect messages.
 
 public class MessageFactory {
 
-    static Message messageFactory(InputStream inputStream) {
+    static Message messageFactory(InputStream inputStream){
 
         //Instantiate factory and DocumentBuilder
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
