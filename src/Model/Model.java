@@ -24,13 +24,15 @@ public class Model {
     }
 
 
-    public void createChat() {
+    public Chat createChat() {
         Chat newChat =  new Chat(new ChatSettings());
         chats.add(newChat);
 
         if (chats.size() == 1) {
             activeChat = chats.get(0);
         }
+
+        return newChat;
     }
 
     public void addToChat(Connection connection, Chat chat) {
@@ -39,6 +41,10 @@ public class Model {
         } else {
             throw new IllegalArgumentException("Model doesn't have this chat");
         }
+    }
+
+    public void createConnectionReceiver(int port) {
+        connectionReceiver = new ConnectionReceiver(port);
     }
 
     void notifyView() {
