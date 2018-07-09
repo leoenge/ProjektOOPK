@@ -6,7 +6,12 @@ import java.util.ArrayList;
 
 public class Model {
 
-    static Model modelInstance = new Model();
+    //Singleton since only one is needed.
+    private static Model modelInstance = new Model();
+
+    public static Model getInstance() {
+        return modelInstance;
+    }
 
     ArrayList<Chat> chats;
     Chat activeChat;
@@ -17,13 +22,26 @@ public class Model {
         chats = new ArrayList<Chat>();
         view = new View(this);
     }
-    public void createChat(Connection connection) {
-        Connection[] connectionArr = new Connection[] {connection};
-        chats.add(new Chat(connectionArr, ChatSettings.getInstance());
+
+
+    public void createChat() {
+        Chat newChat =  new Chat(new ChatSettings());
+        chats.add(newChat);
 
         if (chats.size() == 1) {
             activeChat = chats.get(0);
         }
     }
-    public void addToChat(Connection connection, Chat chat){}
+
+    public void addToChat(Connection connection, Chat chat) {
+        if (chats.contains(chat)) {
+            chat.addConnection(connection);
+        } else {
+            throw new IllegalArgumentException("Model doesn't have this chat");
+        }
+    }
+
+    void notifyView() {
+        view.updateView();
+    }
 }

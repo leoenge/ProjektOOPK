@@ -1,18 +1,18 @@
 package Model;
 
 public class ChatSettings {
-    public Encryption encryption;
-    public String fontType;
-    public String fontColor;
-    public String userName;
+    Encryption encryption;
+    String fontType;
+    String fontColor;
+    String userName;
 
-    private static ChatSettings theInstance = new ChatSettings();
+    ChatSettings() {
 
-    public static ChatSettings getInstance() {
-        return theInstance;
     }
 
-    private ChatSettings() {
+    ChatSettings(String userName) {
+        this.userName = userName;
     }
+
 
 }

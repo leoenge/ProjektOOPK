@@ -20,8 +20,9 @@ public class Controller implements ActionListener {
     //private Model model;
     public View view;
 
-    public void askUser(Connection requestConnection, Request request) {
-
+    //Returns the chat to connect the new connection to or null if user doesn't want to establish the connection
+    public Chat askUser(Connection requestConnection, Request request) {
+        return null;
     }
 
     public void askUserFileRequest() {
