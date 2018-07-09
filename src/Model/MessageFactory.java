@@ -97,7 +97,6 @@ public class MessageFactory {
             //Check for encryption tag.
             if (textTag.hasChildNodes()) {
                 //If it has children, there should be only one child which should be the encrypted tag.
-                //If it isn't, we return null
                 if (textTag.getChildNodes().getLength() == 1
                         && textTag.getFirstChild().getNodeName().equals("encrypted")) {
                     encryptedText = textTag.getFirstChild().getNodeValue();
