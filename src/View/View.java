@@ -34,6 +34,10 @@ public class View {
 
     }
 
+    public void updateActiveChatBox(int chatNumber) {
+        controlPanel.chooseChatBox.addItem("Chat no " + chatNumber);
+    }
+
     //TEST METHOD DON'T TOUCH
     public static void main(String[] args) {
         View view = new View(Model.getInstance());

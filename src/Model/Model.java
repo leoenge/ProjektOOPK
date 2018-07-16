@@ -31,6 +31,9 @@ public class Model {
         if (chats.size() == 1) {
             activeChat = chats.get(0);
         }
+
+        //Adds the new chat to a combo box so user can select it.
+        view.updateActiveChatBox(chats.size());
     }
 
     public void addToChat(Connection connection, Chat chat) {

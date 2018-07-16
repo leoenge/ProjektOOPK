@@ -17,7 +17,7 @@ public class Controller implements ActionListener {
         return theInstance;
     }
 
-    //private Model model;
+    private Model model = Model.getInstance();
     public View view;
 
     //Returns the chat to connect the new connection to or null if user doesn't want to establish the connection

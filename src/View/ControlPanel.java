@@ -28,4 +28,6 @@ public class ControlPanel extends JPanel {
         this.add(chooseChatBox);
         this.setVisible(true);
     }
+
+
 }
