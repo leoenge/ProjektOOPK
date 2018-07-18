@@ -24,6 +24,7 @@ public class ConnectionReceiver implements Runnable {
             //If user wants to create a new chat with incoming connection, askUser will create a chat and return that chat.
             if ((chat = Controller.getInstance().askUser(connection, null)) != null) {
                 Model.getInstance().addToChat(connection, chat);
+                Model.getInstance().connectionReceiver = new ConnectionReceiver(0);
             }
         } else {
             //TODO: Handle request message from other client.

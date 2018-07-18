@@ -13,10 +13,11 @@ public class Model {
         return modelInstance;
     }
 
+    public View view;
+
     ArrayList<Chat> chats;
     Chat activeChat;
     ConnectionReceiver connectionReceiver;
-    View view;
 
     private Model() {
         chats = new ArrayList<Chat>();
@@ -45,6 +46,10 @@ public class Model {
 
     public void createConnectionReceiver(int port) {
         connectionReceiver = new ConnectionReceiver(port);
+    }
+
+    public Chat getActiveChat() {
+        return activeChat;
     }
 
     void notifyView() {

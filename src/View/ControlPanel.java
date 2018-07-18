@@ -1,13 +1,14 @@
 package View;
 
 import Controller.Controller;
+import Model.Model;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class ControlPanel extends JPanel implements ActionListener {
+public class ControlPanel extends JPanel {
 
     JButton connectButton;
     JButton chatSettingsButton;
@@ -25,11 +26,11 @@ public class ControlPanel extends JPanel implements ActionListener {
         closeConnectionButton = new JButton("Close connection");
         chooseChatBox = new JComboBox();
 
-        connectButton.addActionListener(this);
-        chatSettingsButton.addActionListener(this);
-        closeChatButton.addActionListener(this);
-        closeConnectionButton.addActionListener(this);
-        chooseChatBox.addActionListener(this);
+        connectButton.addActionListener(Model.getInstance().view);
+        chatSettingsButton.addActionListener(Model.getInstance().view);
+        closeChatButton.addActionListener(Model.getInstance().view);
+        closeConnectionButton.addActionListener(Model.getInstance().view);
+        chooseChatBox.addActionListener(Model.getInstance().view);
 
         this.add(connectButton);
         this.add(chatSettingsButton);
@@ -37,12 +38,5 @@ public class ControlPanel extends JPanel implements ActionListener {
         this.add(closeConnectionButton);
         this.add(chooseChatBox);
         this.setVisible(true);
-    }
-
-    //Funderar på att sätta lyssnaren på knapparna i View istället för i Controller så att controller inte behöver känna till
-    //Vilka knappar som finns i View.
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == this.connectButton) {
-        }
     }
 }

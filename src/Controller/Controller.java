@@ -56,31 +56,30 @@ public class Controller implements ActionListener {
 
     }
 
-    private void sendMessage() {
+    public void sendMessage() {
+        Model.getInstance().getActiveChat().sendTextMessage("text goes here");
+    }
+
+    public void requestConnection() {
+    }
+
+    public void updateSettings() {
 
     }
 
-    private void requestConnection() {
+    public void closeActiveChat() {
 
     }
 
-    private void updateSettings() {
+    public void closeConnection() {
 
     }
 
-    private void closeActiveChat() {
+    public void changeActiveChat() {
 
     }
 
-    private void closeSingleChat() {
-
-    }
-
-    private void changeActiveChat() {
-
-    }
-
-    private void sendFile() {
+    public void sendFile() {
 
     }
 }

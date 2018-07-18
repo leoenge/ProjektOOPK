@@ -46,6 +46,12 @@ public class Chat implements Observer {
         }
     }
 
+    public void sendTextMessage(String messageText) {
+        TextMessage message = new TextMessage(messageText, null, settings.userName);
+        for (Connection connection:connections) {
+            connection.sendMessage(message);
+        }
+    }
     public void sendMessage(TextMessage textMessage){}
     public void sendMessage(Message message, Connection toConnection){
         toConnection.sendMessage(message);
