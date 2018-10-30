@@ -2,6 +2,7 @@ package Controller;
 
 import Model.*;
 import View.*;
+import jdk.nashorn.internal.scripts.JO;
 //import Model.*;
 
 import javax.swing.*;
@@ -33,7 +34,7 @@ public class Controller implements ActionListener {
     public void establishServerPort() {
         String inputStr = JOptionPane.showInputDialog("Which port do you want to listen to connections from?" +
                 "(49152-65535)");
-        int portNumber = 0;
+        int portNumber;
         try {
             portNumber = Integer.parseInt(inputStr);
         } catch (NumberFormatException e){
