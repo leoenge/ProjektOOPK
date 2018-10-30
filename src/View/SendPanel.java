@@ -1,9 +1,13 @@
 package View;
 
+import Model.Model;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class SendPanel extends JPanel   {
+public class SendPanel extends JPanel {
     JButton sendButton;
     JButton fileButton;
     JTextPane messageTextPane;
@@ -20,6 +24,9 @@ public class SendPanel extends JPanel   {
         this.add(messageTextPane);
         this.add(sendButton);
         this.add(fileButton);
+
+        sendButton.addActionListener(Model.getInstance().view);
+        fileButton.addActionListener(Model.getInstance().view);
 
         this.setVisible(true);
     }

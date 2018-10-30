@@ -4,6 +4,7 @@ import Model.*;
 import View.*;
 //import Model.*;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -11,7 +12,7 @@ public class Controller implements ActionListener {
 
     private static Controller theInstance = new Controller();
 
-    private Controller() { }
+    private Controller() {}
 
     public static Controller getInstance() {
         return theInstance;
@@ -29,35 +30,57 @@ public class Controller implements ActionListener {
 
     }
 
+    public void establishServerPort() {
+        String inputStr = JOptionPane.showInputDialog("Which port do you want to listen to connections from?" +
+                "(49152-65535)");
+        int portNumber = 0;
+        try {
+            portNumber = Integer.parseInt(inputStr);
+        } catch (NumberFormatException e){
+            JOptionPane.showMessageDialog(null,
+                    "port needs to be an integer value", "Error", JOptionPane.ERROR_MESSAGE);
+            establishServerPort();
+            return;
+        }
+
+        if (portNumber < 49152 || portNumber > 65535) {
+            JOptionPane.showMessageDialog(null,
+                    "port number out of range", "Error", JOptionPane.ERROR_MESSAGE);
+            establishServerPort();
+            return;
+        }
+
+        Model.getInstance().createConnectionReceiver(portNumber);
+    }
+
     public void actionPerformed(ActionEvent e) {
 
     }
 
-    private void sendMessage() {
+    public void sendMessage() {
+        Model.getInstance().getActiveChat().sendTextMessage("text goes here");
+    }
+
+    public void requestConnection() {
+    }
+
+    public void updateSettings() {
 
     }
 
-    private void requestConnection() {
+    public void closeActiveChat() {
 
     }
 
-    private void updateSettings() {
+    public void closeConnection() {
 
     }
 
-    private void closeActiveChat() {
+    public void changeActiveChat() {
 
     }
 
-    private void closeSingleChat() {
-
-    }
-
-    private void changeActiveChat() {
-
-    }
-
-    private void sendFile() {
+    public void sendFile() {
 
     }
 }

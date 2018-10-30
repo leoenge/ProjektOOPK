@@ -1,7 +1,12 @@
 package View;
 
+import Controller.Controller;
+import Model.Model;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class ControlPanel extends JPanel {
 
@@ -20,6 +25,12 @@ public class ControlPanel extends JPanel {
         closeChatButton = new JButton("Close Chat");
         closeConnectionButton = new JButton("Close connection");
         chooseChatBox = new JComboBox();
+
+        connectButton.addActionListener(Model.getInstance().view);
+        chatSettingsButton.addActionListener(Model.getInstance().view);
+        closeChatButton.addActionListener(Model.getInstance().view);
+        closeConnectionButton.addActionListener(Model.getInstance().view);
+        chooseChatBox.addActionListener(Model.getInstance().view);
 
         this.add(connectButton);
         this.add(chatSettingsButton);
