@@ -17,7 +17,7 @@ import java.lang.reflect.Array;
 
 public class MessageFactory {
 
-    static Message messageFactory(InputStream inputStream){
+    public static Message messageFactory(InputStream inputStream){
 
         //Instantiate factory and DocumentBuilder
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -80,39 +80,28 @@ public class MessageFactory {
 
         String text = null;
         String encryptedText = null;
-        String name = textElement.getAttribute("name");
-
-        NodeList childNodes = textElement.getChildNodes();
+        String name = textElement.getAttribute("sender");
+        NodeList childNodes = textElement.getElementsByTagName("text");
         Node textTag;
 
-        try {
-            textTag = childNodes.item(0);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        if ((textTag = childNodes.item(0)) == null) {
             return null;
         }
 
-        //The only child should be <text></text>, if it is not the message is not correctly formatted.
-        //and we return null.
-        if (textTag.getNodeName().equals("text") && textTag.getChildNodes().getLength() == 1) {
-
-            //Check for encryption tag.
-            if (textTag.hasChildNodes()) {
-                //If it has children, there should be only one child which should be the encrypted tag.
-                //If it isn't, we return null
-                if (textTag.getChildNodes().getLength() == 1
-                        && textTag.getFirstChild().getNodeName().equals("encrypted")) {
-                    encryptedText = textTag.getFirstChild().getNodeValue();
-                } else {
-                    return null;
-                }
+        //Check for encryption tag.
+        if (textTag.getFirstChild().getNodeName().equals("encrypted")) {
+            System.out.println("hi");
+            //If it has children, there should be only one child which should be the encrypted tag.
+            //If it isn't, we return null
+            if (textTag.getChildNodes().getLength() == 1
+                    && textTag.getFirstChild().getNodeName().equals("encrypted")) {
+                encryptedText = textTag.getFirstChild().getNodeValue();
+            } else {
+                return null;
             }
-
-            text = textTag.getNodeValue();
-
-        } else {
-            return null;
         }
 
+        text = textTag.getTextContent();
 
         return new TextMessage(text, encryptedText, name);
 

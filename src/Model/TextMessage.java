@@ -8,7 +8,7 @@ public class TextMessage extends Message {
     String fontType;
     String encryptedText;
 
-    TextMessage(String text, String encryptedIn, String name) {
+    public TextMessage(String text, String encryptedIn, String name) {
         message = text;
         senderName = name;
         textColor = null;
