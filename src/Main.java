@@ -17,6 +17,7 @@ public class Main {
     public static void main(String[] args) {
         Model model = new Model();
         Controller.getInstance().setModel(model);
+        Controller.getInstance().setView(model.view);
 
         //Controller.getInstance().establishServerPort();
     }

@@ -54,7 +54,7 @@ public class Connection extends Observable implements Runnable {
         socketWriter = new PrintWriter(socketOutStream, true);
         socketReader = new BufferedReader(new InputStreamReader(socketInStream));
 
-        //The chat is notified when new messages are received over the soccet.
+        //The chat is notified when new messages are received over the socket.
         addObserver(chat);
     }
 

@@ -19,17 +19,18 @@ public class Model {
 
     public Model() {
         chats = new ArrayList<Chat>();
-        view = new View(this);
+        view = View.init_view(this);
         String username = view.requestString("What default username do you want?");
-        int portNumber = view.requestNumber("What port number do you want to use? (1500 - 65535)");
+        int portNumber =
+                view.requestNumber("What port number do you want to use? (1500 - 65535)", 1500, 65535);
 
         default_settings = new ChatSettings(username);
-        Controller.getInstance().establishServerPort();
+        createConnectionReceiver(portNumber);
         System.out.println("kek1");
     }
 
     public Chat createChat() {
-        Chat newChat =  new Chat(new ChatSettings(), this);
+        Chat newChat =  new Chat(default_settings, this);
         chats.add(newChat);
 
         if (chats.size() == 1) {
@@ -50,7 +51,7 @@ public class Model {
     }
 
     public void createConnectionReceiver(int port) {
-        connectionReceiver = new ConnectionReceiver(port);
+        connectionReceiver = new ConnectionReceiver(port, this);
         connectionReceiver.run();
     }
 

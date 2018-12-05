@@ -19,11 +19,17 @@ public class View implements ActionListener {
     private ChatPanel chatPanel;
     private SendPanel sendPanel;
 
-    public String getChatMessage() {
-        return sendPanel.messageTextPane.getText();
+    public static View init_view(Model modelIn) {
+        View view = new View(modelIn);
+        view.sendPanel.sendButton.addActionListener(view);
+        view.sendPanel.fileButton.addActionListener(view);
+
+        //TODO: Lägg till andra knappar så att view lyssnar på dem.
+
+        return view;
     }
 
-    public View(Model modelIn) {
+    private View(Model modelIn) {
         model = modelIn;
         frame = new JFrame();
         frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -99,7 +105,7 @@ public class View implements ActionListener {
         } else if (srcButton == controlPanel.closeConnectionButton) {
             Controller.getInstance().closeConnection();
         } else if (srcButton == sendPanel.sendButton) {
-            Controller.getInstance().sendMessage();
+            Controller.getInstance().sendMessage(sendPanel.messageTextPane.getText());
         } else if (srcButton == sendPanel.fileButton) {
             Controller.getInstance().sendFile();
         } else if (srcBox == controlPanel.chooseChatBox) {

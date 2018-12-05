@@ -21,6 +21,7 @@ public class Controller implements ActionListener {
     public void setModel(Model model) {
         this.model = model;
     }
+    public void setView(View view) {this.view = view;}
 
     public View view;
     private Model model;
@@ -30,11 +31,11 @@ public class Controller implements ActionListener {
         //TODO: Fixa så att detta inte blockar eventtråden. Det som är skrivet nu är endast en testversion.
         int answer;
         if (request != null) {
-            answer = JOptionPane.showConfirmDialog(view.frame,
+            answer = JOptionPane.showConfirmDialog(null,
                     "Someone wants to connect. Their message: " + request.message,
                     "New connection attempt", JOptionPane.YES_NO_OPTION);
         } else {
-            answer = JOptionPane.showConfirmDialog(view.frame, "Someone wants to connect with a simpler" +
+            answer = JOptionPane.showConfirmDialog(null, "Someone wants to connect with a simpler " +
                     "client", "New connection attempt", JOptionPane.YES_NO_OPTION);
         }
         return answer == JOptionPane.YES_OPTION;
@@ -68,16 +69,13 @@ public class Controller implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-
     }
 
-    public void sendMessage() {
+    public void sendMessage(String msText) {
         //Create message
         Chat activeChat = model.getActiveChat();
-        String msText = view.getChatMessage();
-        TextMessage message = new TextMessage(msText, null, activeChat.getSettings().getUserName());
 
-        activeChat.sendTextMessage(message.toXML());
+        activeChat.sendTextMessage(msText);
         //Updates the text box with the message history.
         view.updateView();
     }

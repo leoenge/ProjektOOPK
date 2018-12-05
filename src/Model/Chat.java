@@ -45,7 +45,6 @@ public class Chat implements Observer {
         if (newMessage instanceof Message && connection instanceof Connection) {
             receiveMessage((Message) newMessage, (Connection) connection);
             model.notifyView();
-            return;
         } else {
             throw new IllegalArgumentException();
         }
