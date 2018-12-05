@@ -11,18 +11,28 @@ import javax.xml.parsers.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 
 //TODO: Add warning to the user that something went wrong if MessageFactory returns null.
 //TODO: Create support for disconnect messages.
 
 public class MessageFactory {
 
-    public static Message messageFactory(InputStream inputStream){
+    /** Parses incoming messages into the different parts it contains and returns a list of those message
+     *  types.
+     * @param inputStream The stream containing the message.
+     * @return A list of messages, corresponding to each of the different tags the message contains.
+     *
+     * @throws XMLParseException if message is not correctly formatted
+     */
+    public static ArrayList<Message> messageFactory(InputStream inputStream) throws XMLParseException{
 
         //Instantiate factory and DocumentBuilder
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = null;
-        Document dom = null;
+        Document dom;
+        ArrayList<Message> messages = new ArrayList<Message>();
         try {
             db = dbf.newDocumentBuilder();
         } catch (ParserConfigurationException e) {
@@ -34,10 +44,10 @@ public class MessageFactory {
             dom = db.parse(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            throw new XMLParseException("Cannot read input stream");
         } catch (SAXException e) {
             e.printStackTrace();
-            return null;
+            throw new XMLParseException("Error when parsing XML");
         }
 
         //Apparently this is important.
@@ -45,72 +55,64 @@ public class MessageFactory {
 
         Element firstTag = dom.getDocumentElement();
 
-        //Check if tag is a TextMessage.
-        switch (firstTag.getTagName().toLowerCase()) {
-            case "message":
-                return createTextMessage(firstTag);
-            case "filerequest":
-                return createFileRequest(firstTag);
-            case "fileresponse":
-                return createFileResponse(firstTag);
-            case "keyrequest":
-                return createKeyRequest(firstTag);
-            case "request":
-                return createRequest(firstTag);
-            default:
-                return null;
-        }
-
-        /*
         if (firstTag.getTagName().equals("message")) {
-            return createTextMessage(firstTag);
+            if (firstTag.getElementsByTagName("text").item(0) != null) {
+                messages.add(createTextMessage((Element) firstTag.getElementsByTagName("text").item(0)));
+            }
+
+            if (firstTag.getElementsByTagName("filerequest").item(0) != null) {
+                messages.add(createFileRequest((Element) firstTag.getElementsByTagName("filerequest").item(0)));
+            }
+
+            if (firstTag.getElementsByTagName("fileresponse").item(0) != null) {
+                messages.add(createFileResponse((Element) firstTag.getElementsByTagName("fileresponse").item(0)));
+            }
+
+            if (firstTag.getElementsByTagName("keyrequest").item(0) != null) {
+                messages.add(createKeyRequest((Element) firstTag.getElementsByTagName("keyrequest").item(0)));
+            }
+        } else if (firstTag.getTagName().equals("request")) {
+            messages.add(createRequest(firstTag));
+        } else {
+            throw new XMLParseException("First tag type not supported");
         }
 
-        else if (firstTag.getTagName().equals("filerequest")) {
-            return createFileRequest(firstTag);
-        }
-
-        else if (firstTag.getTagName().equals("fileresponse")) {
-            return createFileResponse(firstTag);
-        }
-        */
+        return messages;
     }
 
-    private static Message createTextMessage(Element textElement) {
+    private static Message createTextMessage(Element textElement) throws XMLParseException{
 
         String text = null;
-        String encryptedText = null;
+        StringBuilder encryptedTextSb = new StringBuilder();
         String name = textElement.getAttribute("sender");
         NodeList childNodes = textElement.getElementsByTagName("text");
+        NodeList encryptedNodes  = textElement.getElementsByTagName("encrypted");
         Node textTag;
+        Node encryptedTag = null;
 
         if ((textTag = childNodes.item(0)) == null) {
-            return null;
+            throw new XMLParseException("Malformed text message received.");
         }
 
-        //Check for encryption tag.
-        if (textTag.getFirstChild().getNodeName().equals("encrypted")) {
-            System.out.println("hi");
-            //If it has children, there should be only one child which should be the encrypted tag.
-            //If it isn't, we return null
-            if (textTag.getChildNodes().getLength() == 1
-                    && textTag.getFirstChild().getNodeName().equals("encrypted")) {
-                encryptedText = textTag.getFirstChild().getNodeValue();
-            } else {
-                return null;
+        if (encryptedNodes.item(0) != null) {
+            for (int i = 0; i < encryptedNodes.getLength(); i++) {
+                encryptedTag = encryptedNodes.item(i);
+                encryptedTextSb.append(encryptedTag.getTextContent());
             }
         }
 
+        String encryptedText = encryptedTextSb.toString();
         text = textTag.getTextContent();
 
         return new TextMessage(text, encryptedText, name);
 
     }
 
-    private static Message createFileRequest(Element fileRequestElement) {
+    private static Message createFileRequest(Element fileRequestElement) throws XMLParseException {
         String fileName = fileRequestElement.getAttribute("name");
-        String userText = fileRequestElement.getNodeValue();
+        String userText = fileRequestElement.getTextContent();
         String AESKey = null;
+        String type = "";
         int caesarKey = 0;
         int fileSize;
 
@@ -118,32 +120,34 @@ public class MessageFactory {
             fileSize = Integer.parseInt(fileRequestElement.getAttribute("size"));
         } catch (NumberFormatException e) {
             e.printStackTrace();
-            return null;
+            throw new XMLParseException("Invalid file request received: file size not an integer");
         }
 
         if (fileRequestElement.hasAttribute("type") && fileRequestElement.hasAttribute("key")) {
-            if (fileRequestElement.getAttribute("type").equals("AES")) {
+            if (fileRequestElement.getAttribute("type").toUpperCase().equals("AES")) {
+                type = "AES";
                 AESKey = fileRequestElement.getAttribute("key");
             } else if (fileRequestElement.getAttribute("type").equals("caesar")) {
                 try {
                     caesarKey = Integer.parseInt(fileRequestElement.getAttribute("key"));
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    return null;
+                    throw new XMLParseException("Invalid file request received: caesar key not an integer.");
                 }
             }
         }
 
-        return new FileRequest(userText, fileName, fileSize, AESKey, caesarKey);
+        return new FileRequest(userText, fileName, fileSize, type, AESKey, caesarKey);
     }
 
-    private static Message createFileResponse(Element fileResponseElement) {
+    private static Message createFileResponse(Element fileResponseElement) throws XMLParseException {
         String replyString;
         boolean reply;
         int portNumber;
-        String AESkey = null;
+        String key;
         int caesarKey = 0;
 
+        //Check for the required tags.
         if (fileResponseElement.hasAttribute("reply") && fileResponseElement.hasAttribute("port")) {
             replyString = fileResponseElement.getAttribute("reply");
 
@@ -152,31 +156,26 @@ public class MessageFactory {
             } else if (replyString.equals("no")) {
                 reply = false;
             } else {
-                return null;
+                throw new XMLParseException("Invalid file response received: invalid reply type");
             }
 
             try {
                 portNumber = Integer.parseInt(fileResponseElement.getAttribute("port"));
             } catch (NumberFormatException e) {
                 e.printStackTrace();
-                return null;
+                throw new XMLParseException("Invalid file response received: invalid port number");
             }
-
-        } else {
-            return null;
+        } else { //Else the message does not contain required attributes
+            throw new XMLParseException("Invalid file response received: required attributes missing.");
         }
 
-        if (fileResponseElement.hasAttribute("key")) {
-            AESkey = fileResponseElement.getAttribute("key");
-        } else {
-            return null;
-        }
+        key = fileResponseElement.getAttribute("key");
 
-        return new FileResponse(reply, portNumber, AESkey, caesarKey);
+        return new FileResponse(reply, portNumber, key, caesarKey);
 
     }
 
-    private static Message createKeyRequest(Element keyRequestElement) {
+    private static Message createKeyRequest(Element keyRequestElement) throws XMLParseException {
         String message = keyRequestElement.getNodeValue();
         String encryptionString;
         Encryption encryption;
@@ -184,7 +183,7 @@ public class MessageFactory {
         if (keyRequestElement.hasAttribute("type")) {
             encryptionString = keyRequestElement.getAttribute("type");
         } else {
-            return null;
+            throw new XMLParseException("Invalid key request received: no type attribute found");
         }
 
         switch (encryptionString.toLowerCase()) {
@@ -198,7 +197,7 @@ public class MessageFactory {
                 encryption = new AESEncryption();
                 break;
             default:
-                return null;
+                throw new XMLParseException("key request error: encryption type not supported");
         }
 
         return new KeyRequest(encryption, message);

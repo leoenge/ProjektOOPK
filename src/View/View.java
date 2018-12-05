@@ -4,6 +4,8 @@ import javax.swing.*;
 
 import Controller.Controller;
 import Model.*;
+import jdk.nashorn.internal.scripts.JO;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,10 +14,14 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class View implements ActionListener {
     private Model model;
-    JFrame frame;
+    public JFrame frame;
     private ControlPanel controlPanel;
     private ChatPanel chatPanel;
     private SendPanel sendPanel;
+
+    public String getChatMessage() {
+        return sendPanel.messageTextPane.getText();
+    }
 
     public View(Model modelIn) {
         model = modelIn;
@@ -34,8 +40,41 @@ public class View implements ActionListener {
         frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    public void updateView() {
+    public String requestString(String promptMessage) {
+        return JOptionPane.showInputDialog(promptMessage);
+    }
 
+    public int requestNumber(String promptMessage) {
+        int res;
+
+        try {
+            res = Integer.parseInt(JOptionPane.showInputDialog(promptMessage));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this.frame, "Input needs to be a number.");
+            return requestNumber(promptMessage);
+        }
+
+        return res;
+    }
+
+    public int requestNumber(String promptMessage, int lower, int upper) {
+        int res;
+
+        try {
+            res = Integer.parseInt(JOptionPane.showInputDialog(promptMessage));
+            if (res < lower || res > upper) {
+                JOptionPane.showMessageDialog(this.frame, "Value not in specified range. Try again.");
+                return requestNumber(promptMessage, lower, upper);
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this.frame, "Value needs to be an integer. Try again.");
+            return requestNumber(promptMessage, lower, upper);
+        }
+
+        return res;
+    }
+
+    public void updateView() {
     }
 
     //Funderar på att sätta lyssnaren på knapparna i View istället för i Controller så att controller inte behöver känna till
@@ -71,10 +110,4 @@ public class View implements ActionListener {
     public void updateActiveChatBox(int chatNumber) {
         controlPanel.chooseChatBox.addItem("Chat no " + chatNumber);
     }
-
-    //TEST METHOD DON'T TOUCH
-    public static void main(String[] args) {
-        View view = new View(Model.getInstance());
-    }
-    //I touched it xD
 }

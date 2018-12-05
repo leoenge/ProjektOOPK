@@ -1,8 +1,10 @@
 package Model;
 
+import javax.management.modelmbean.XMLParseException;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Observable;
 
 //TODO: Fixa felhantering om något går fel med inkommande meddelanden. Trådsäkerhet!
@@ -70,19 +72,22 @@ public class Connection extends Observable implements Runnable {
     void listen() {
         try {
             String inputLine;
-            Message incMessage;
+            ArrayList<Message> incMessages;
 
             while ((inputLine = socketReader.readLine()) != null) {
                 //Create inputstream from bufferedreader.
                 InputStream is = new ByteArrayInputStream(inputLine.getBytes(Charset.defaultCharset()));
                 //Parse xml-message and create a Message instance.
-                if ((incMessage = MessageFactory.messageFactory(is)) != null) {
-                    //Notifies chat that message has been received, so that view can be updated etc.
-                    setChanged();
-                    notifyObservers(incMessage);
-                    clearChanged();
-                } else {
-                    System.out.println("Something went wrong");
+                try {
+                    incMessages = MessageFactory.messageFactory(is);
+                    for (Message incMessage : incMessages) {
+                        //Notifies chat that message has been received, so that view can be updated etc.
+                        setChanged();
+                        notifyObservers(incMessage);
+                        clearChanged();
+                    }
+                } catch (XMLParseException e) {
+                    e.printStackTrace();
                     return;
                 }
             }

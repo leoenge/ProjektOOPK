@@ -25,8 +25,9 @@ public class SendPanel extends JPanel {
         this.add(sendButton);
         this.add(fileButton);
 
-        sendButton.addActionListener(Model.getInstance().view);
+        /**sendButton.addActionListener(Model.getInstance().view);
         fileButton.addActionListener(Model.getInstance().view);
+         **/
 
         this.setVisible(true);
     }

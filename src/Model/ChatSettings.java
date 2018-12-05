@@ -10,6 +10,8 @@ public class ChatSettings {
 
     }
 
+    public String getUserName() { return userName; }
+
     ChatSettings(String userName) {
         this.userName = userName;
     }

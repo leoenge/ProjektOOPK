@@ -7,12 +7,14 @@ public class FileRequest extends Message {
     public String AESKey;
     public int caesarKey;
 
-    FileRequest(String messageIn, String fileNameIn, int sizeIn, String AESKeyIn, int caesarKeyIn) {
+    FileRequest(String messageIn, String fileNameIn, int sizeIn, String typeIn, String AESKeyIn, int caesarKeyIn) {
         message = messageIn;
         fileName = fileNameIn;
         size = sizeIn;
         AESKey = AESKeyIn;
         caesarKey = caesarKeyIn;
+        type = typeIn;
+
     }
 
     @Override

@@ -11,20 +11,33 @@ import java.awt.event.ActionListener;
 
 public class Controller implements ActionListener {
 
+    //Singleton since we only want one controller
     private static Controller theInstance = new Controller();
 
     private Controller() {}
 
-    public static Controller getInstance() {
-        return theInstance;
+    public static Controller getInstance() { return theInstance;}
+
+    public void setModel(Model model) {
+        this.model = model;
     }
 
-    private Model model = Model.getInstance();
     public View view;
+    private Model model;
 
     //Returns the chat to connect the new connection to or null if user doesn't want to establish the connection
-    public Chat askUser(Connection requestConnection, Request request) {
-        return null;
+    public boolean askUser(Request request) {
+        //TODO: Fixa så att detta inte blockar eventtråden. Det som är skrivet nu är endast en testversion.
+        int answer;
+        if (request != null) {
+            answer = JOptionPane.showConfirmDialog(view.frame,
+                    "Someone wants to connect. Their message: " + request.message,
+                    "New connection attempt", JOptionPane.YES_NO_OPTION);
+        } else {
+            answer = JOptionPane.showConfirmDialog(view.frame, "Someone wants to connect with a simpler" +
+                    "client", "New connection attempt", JOptionPane.YES_NO_OPTION);
+        }
+        return answer == JOptionPane.YES_OPTION;
     }
 
     public void askUserFileRequest() {
@@ -33,7 +46,7 @@ public class Controller implements ActionListener {
 
     public void establishServerPort() {
         String inputStr = JOptionPane.showInputDialog("Which port do you want to listen to connections from?" +
-                "(49152-65535)");
+                "(1500 - 65535)");
         int portNumber;
         try {
             portNumber = Integer.parseInt(inputStr);
@@ -44,14 +57,14 @@ public class Controller implements ActionListener {
             return;
         }
 
-        if (portNumber < 49152 || portNumber > 65535) {
+        if (portNumber < 1500 || portNumber > 65535) {
             JOptionPane.showMessageDialog(null,
                     "port number out of range", "Error", JOptionPane.ERROR_MESSAGE);
             establishServerPort();
             return;
         }
 
-        Model.getInstance().createConnectionReceiver(portNumber);
+        model.createConnectionReceiver(portNumber);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -59,10 +72,18 @@ public class Controller implements ActionListener {
     }
 
     public void sendMessage() {
-        Model.getInstance().getActiveChat().sendTextMessage("text goes here");
+        //Create message
+        Chat activeChat = model.getActiveChat();
+        String msText = view.getChatMessage();
+        TextMessage message = new TextMessage(msText, null, activeChat.getSettings().getUserName());
+
+        activeChat.sendTextMessage(message.toXML());
+        //Updates the text box with the message history.
+        view.updateView();
     }
 
     public void requestConnection() {
+
     }
 
     public void updateSettings() {

@@ -2,37 +2,62 @@ package Model;
 
 import Controller.Controller;
 
+import javax.management.modelmbean.XMLParseException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ConnectionReceiver implements Runnable {
     private ServerSocket openSocket;
     private int port;
+    private Model model;
 
-    public ConnectionReceiver(int port) {
+    public ConnectionReceiver(int port, Model model) {
+        this.model = model;
         this.port = port;
     }
 
     public void handleRequest(Socket socket) throws IOException {
         Connection connection = new Connection(socket);
 
-        Chat chat;
-        //Means other user has not implemented multi-part support aka B1.
-        if (connection.socketReader.readLine() == null) {
-            //askUser returns which chat user wants to add connection to, or null if user doesn't want to establish new connection.
-            //If user wants to create a new chat with incoming connection, askUser will create a chat and return that chat.
-            if ((chat = Controller.getInstance().askUser(connection, null)) != null) {
-                Model.getInstance().addToChat(connection, chat);
-                Model.getInstance().connectionReceiver = new ConnectionReceiver(0);
+        //Reads the stream to see if there is a request message there.
+        String requestStr = connection.socketReader.readLine();
+        Request request;
+
+        //If there is a message there we read it and see if it is of correct type.
+        if (requestStr != null) {
+            InputStream is = new ByteArrayInputStream(requestStr.getBytes());
+            ArrayList<Message> messages = new ArrayList<Message>();
+            try {
+                messages = MessageFactory.messageFactory(is);
+            } catch (XMLParseException e) {
+                request = null;
+            }
+            //Check that there is only one request message.
+            if (messages.size() == 1 && messages.get(0) instanceof Request) {
+                request = (Request) messages.get(0);
+            } else {
+                request = null;
             }
         } else {
-            //TODO: Handle request message from other client.
+            request = null;
+        }
+        //askUser returns which chat user wants to add connection to, or null if user doesn't want to establish new connection.
+        //If user wants to create a new chat with incoming connection, askUser will create a chat and return that chat.
+        if (Controller.getInstance().askUser(request)) {
+            Chat chat = new Chat(new ChatSettings(""), model);
+            model.addToChat(connection, chat);
+            //Create a new connectionreceiver so that we are always ready for new connection attempts.
+            model.connectionReceiver = new ConnectionReceiver(0, model);
         }
     }
 
     @Override
     public void run() {
+        System.out.println("kek2");
         try {
             openSocket = new ServerSocket(port);
         } catch (IOException e) {

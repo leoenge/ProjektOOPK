@@ -1,32 +1,35 @@
 package Model;
 
 import View.View;
+import Controller.Controller;
+import jdk.nashorn.internal.scripts.JO;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
+import static javax.swing.JOptionPane.showInputDialog;
+
 public class Model {
-
-    //Singleton since only one is needed.
-    private static Model modelInstance = new Model();
-
-    public static Model getInstance() {
-        return modelInstance;
-    }
-
     public View view;
 
     ArrayList<Chat> chats;
     Chat activeChat;
     ConnectionReceiver connectionReceiver;
+    ChatSettings default_settings;
 
-    private Model() {
+    public Model() {
         chats = new ArrayList<Chat>();
         view = new View(this);
+        String username = view.requestString("What default username do you want?");
+        int portNumber = view.requestNumber("What port number do you want to use? (1500 - 65535)");
+
+        default_settings = new ChatSettings(username);
+        Controller.getInstance().establishServerPort();
+        System.out.println("kek1");
     }
 
-
     public Chat createChat() {
-        Chat newChat =  new Chat(new ChatSettings());
+        Chat newChat =  new Chat(new ChatSettings(), this);
         chats.add(newChat);
 
         if (chats.size() == 1) {
@@ -48,6 +51,7 @@ public class Model {
 
     public void createConnectionReceiver(int port) {
         connectionReceiver = new ConnectionReceiver(port);
+        connectionReceiver.run();
     }
 
     public Chat getActiveChat() {

@@ -26,12 +26,12 @@ public class ControlPanel extends JPanel {
         closeConnectionButton = new JButton("Close connection");
         chooseChatBox = new JComboBox();
 
-        connectButton.addActionListener(Model.getInstance().view);
+        /** connectButton.addActionListener(Model.getInstance().view);
         chatSettingsButton.addActionListener(Model.getInstance().view);
         closeChatButton.addActionListener(Model.getInstance().view);
         closeConnectionButton.addActionListener(Model.getInstance().view);
         chooseChatBox.addActionListener(Model.getInstance().view);
-
+        **/
         this.add(connectButton);
         this.add(chatSettingsButton);
         this.add(closeChatButton);

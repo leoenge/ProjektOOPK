@@ -11,10 +11,12 @@ public class Chat implements Observer {
     ChatSettings settings;
     ArrayList<TextMessage> messages;
     Connection fileConnection;
+    private Model model;
 
-    public Chat(ChatSettings settings) {
+    public Chat(ChatSettings settings, Model model) {
         this.connections = new ArrayList<Connection>();
         this.settings = settings;
+        this.model = model;
         this.messages = new ArrayList<TextMessage>();
     }
     /*
@@ -22,6 +24,9 @@ public class Chat implements Observer {
 
     }
     */
+    public ChatSettings getSettings() {
+        return settings;
+    }
 
     void receiveMessage(Message message, Connection srcConnection){
         if (message instanceof TextMessage) {
@@ -39,7 +44,7 @@ public class Chat implements Observer {
     public void update(Observable connection, Object newMessage) {
         if (newMessage instanceof Message && connection instanceof Connection) {
             receiveMessage((Message) newMessage, (Connection) connection);
-            Model.getInstance().notifyView();
+            model.notifyView();
             return;
         } else {
             throw new IllegalArgumentException();
