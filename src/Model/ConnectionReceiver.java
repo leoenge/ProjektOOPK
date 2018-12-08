@@ -49,9 +49,12 @@ public class ConnectionReceiver implements Runnable {
         //askUser returns which chat user wants to add connection to, or null if user doesn't want to establish new connection.
         //If user wants to create a new chat with incoming connection, askUser will create a chat and return that chat.
         if (Controller.getInstance().askUser(request)) {
+            //Create a new thread for the connection
+            Thread t = new Thread(connection);
+            t.start();
             model.addToChat(connection, model.createChat());
             //Create a new connectionreceiver so that we are always ready for new connection attempts.
-            model.connectionReceiver = new ConnectionReceiver(0, model);
+            model.connectionReceiver = new ConnectionReceiver(port + 1, model);
         } else if (request == null) { //When user answers no and connection attempt was from simpler client
             connection.sendMessage(new TextMessage("Connection refused", "",
                     model.default_settings.userName));

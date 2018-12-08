@@ -1,6 +1,8 @@
 package View;
 
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 
 import Controller.Controller;
 import Model.*;
@@ -23,6 +25,10 @@ public class View implements ActionListener {
         View view = new View(modelIn);
         view.sendPanel.sendButton.addActionListener(view);
         view.sendPanel.fileButton.addActionListener(view);
+        view.controlPanel.closeChatButton.addActionListener(view);
+        view.controlPanel.closeConnectionButton.addActionListener(view);
+        view.controlPanel.chooseChatBox.addActionListener(view);
+        view.controlPanel.chatSettingsButton.addActionListener(view);
 
         //TODO: Lägg till andra knappar så att view lyssnar på dem.
 
@@ -80,7 +86,30 @@ public class View implements ActionListener {
         return res;
     }
 
-    public void updateView() {
+    public void updateView(Message message) {
+        StyledDocument doc = chatPanel.messageHistoryPane.getStyledDocument();
+        if (message instanceof TextMessage) {
+            try {
+                doc.insertString(doc.getLength(),
+                        ((TextMessage) message).getSenderName() + ": " + message.message + "\n", null);
+            } catch (BadLocationException e) {
+                JOptionPane.showMessageDialog(null, "Error in message text insertion.");
+                return;
+            }
+
+            sendPanel.messageTextPane.setText("");
+        } else if (message instanceof DisconnectMessage) {
+            try {
+                if (!message.senderName.equals("")) {
+                    doc.insertString(doc.getLength(), message.senderName + " has disconnected.", null);
+                } else {
+                    doc.insertString(doc.getLength(), "The other side disconnected without seding a disconnect message.", null);
+                }
+            } catch (BadLocationException e) {
+                JOptionPane.showMessageDialog(null, "Error in message text insertion.");
+                return;
+            }
+        }
     }
 
     //Funderar på att sätta lyssnaren på knapparna i View istället för i Controller så att controller inte behöver känna till
@@ -115,5 +144,13 @@ public class View implements ActionListener {
 
     public void updateActiveChatBox(int chatNumber) {
         controlPanel.chooseChatBox.addItem("Chat no " + chatNumber);
+    }
+
+    public void removeChat(int chatNumber) {
+        //Remove the chat from the choicebox
+        controlPanel.chooseChatBox.removeItemAt(chatNumber);
+        //Clear the text from this chat in the panels.
+        chatPanel.messageHistoryPane.setText("");
+        sendPanel.messageTextPane.setText("");
     }
 }

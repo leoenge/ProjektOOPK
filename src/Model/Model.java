@@ -26,7 +26,6 @@ public class Model {
 
         default_settings = new ChatSettings(username);
         createConnectionReceiver(portNumber);
-        System.out.println("kek1");
     }
 
     public Chat createChat() {
@@ -42,9 +41,26 @@ public class Model {
         return newChat;
     }
 
+    void removeChat(Chat chat) {
+        int chatIndex = chats.indexOf(chat);
+        chats.remove(chat);
+        view.removeChat(chatIndex);
+    }
+
+    public void closeChat(Chat chat) {
+        //Interrupts connection threads. This effectively closes the connection.
+        for (Connection connection : chat.connections) {
+            connection.closeSocket();
+        }
+
+        removeChat(chat);
+    }
+
     public void addToChat(Connection connection, Chat chat) {
         if (chats.contains(chat)) {
             chat.addConnection(connection);
+            connection.addObserver(chat);
+            connection.setChat(chat);
         } else {
             throw new IllegalArgumentException("Model doesn't have this chat");
         }
@@ -59,7 +75,7 @@ public class Model {
         return activeChat;
     }
 
-    void notifyView() {
-        view.updateView();
+    void notifyView(Message message) {
+        view.updateView(message);
     }
 }

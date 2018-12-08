@@ -33,6 +33,8 @@ public class Chat implements Observer {
             messages.add((TextMessage) message);
         }
 
+        model.notifyView(message);
+
         //TODO: Add support for other message types.
     }
 
@@ -40,11 +42,24 @@ public class Chat implements Observer {
         connections.add(connection);
     }
 
+    void closeConnection(Connection connection) {
+        //Send disconnect message to other host
+        connections.remove(connection);
+
+        if (connections.isEmpty()) {
+            model.removeChat(this);
+        }
+    }
+
     //Called when a connection receives a new message from the socket.
     public void update(Observable connection, Object newMessage) {
-        if (newMessage instanceof Message && connection instanceof Connection) {
+        if (newMessage instanceof DisconnectMessage) {
+            //Close the connection, clears view and removes the chat if this was the last connection
+            this.closeConnection((Connection) connection);
+            //Display a message for the user that the other side disconnected.
+            model.notifyView((DisconnectMessage) newMessage);
+        } else if (newMessage instanceof Message) {
             receiveMessage((Message) newMessage, (Connection) connection);
-            model.notifyView();
         } else {
             throw new IllegalArgumentException();
         }

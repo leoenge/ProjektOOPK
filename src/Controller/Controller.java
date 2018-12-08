@@ -75,9 +75,11 @@ public class Controller implements ActionListener {
         //Create message
         Chat activeChat = model.getActiveChat();
 
+        TextMessage message = new TextMessage(msText, "", activeChat.getSettings().getUserName());
+
         activeChat.sendTextMessage(msText);
         //Updates the text box with the message history.
-        view.updateView();
+        view.updateView(message);
     }
 
     public void requestConnection() {
@@ -89,7 +91,8 @@ public class Controller implements ActionListener {
     }
 
     public void closeActiveChat() {
-
+        Chat chat = model.getActiveChat();
+        model.closeChat(chat);
     }
 
     public void closeConnection() {

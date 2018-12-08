@@ -7,19 +7,20 @@ public class FileRequest extends Message {
     public String AESKey;
     public int caesarKey;
 
-    FileRequest(String messageIn, String fileNameIn, int sizeIn, String typeIn, String AESKeyIn, int caesarKeyIn) {
-        message = messageIn;
-        fileName = fileNameIn;
-        size = sizeIn;
-        AESKey = AESKeyIn;
-        caesarKey = caesarKeyIn;
-        type = typeIn;
+    FileRequest(String message, String senderName,
+                String fileName, int size, String type, String AESKey, int caesarKey) {
+        this.senderName = senderName;
+        this.message = message;
+        this.fileName = fileName;
+        this.size = size;
+        this.AESKey = AESKey;
+        this.caesarKey = caesarKey;
+        this.type = type;
 
     }
 
     @Override
     public String toXML() {
-
         return null;
     }
 }

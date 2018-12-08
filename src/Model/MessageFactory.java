@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 //TODO: Add warning to the user that something went wrong if MessageFactory returns null.
-//TODO: Create support for disconnect messages.
 
 public class MessageFactory {
 
@@ -56,12 +55,20 @@ public class MessageFactory {
         Element firstTag = dom.getDocumentElement();
 
         if (firstTag.getTagName().equals("message")) {
+            String username = firstTag.getAttribute("sender");
+            if (firstTag.getElementsByTagName("disconnect").item(0) != null) {
+                messages.add(new DisconnectMessage(username));
+                System.err.println("hi");
+                return messages;
+            }
+
             if (firstTag.getElementsByTagName("text").item(0) != null) {
-                messages.add(createTextMessage((Element) firstTag.getElementsByTagName("text").item(0)));
+                messages.add(createTextMessage((Element) firstTag.getElementsByTagName("text").item(0), username));
             }
 
             if (firstTag.getElementsByTagName("filerequest").item(0) != null) {
-                messages.add(createFileRequest((Element) firstTag.getElementsByTagName("filerequest").item(0)));
+                messages.add(
+                        createFileRequest((Element) firstTag.getElementsByTagName("filerequest").item(0), username));
             }
 
             if (firstTag.getElementsByTagName("fileresponse").item(0) != null) {
@@ -80,35 +87,18 @@ public class MessageFactory {
         return messages;
     }
 
-    private static Message createTextMessage(Element textElement) throws XMLParseException{
+    private static Message createTextMessage(Element textElement, String username) throws XMLParseException{
 
-        String text = null;
-        StringBuilder encryptedTextSb = new StringBuilder();
-        String name = textElement.getAttribute("sender");
-        NodeList childNodes = textElement.getElementsByTagName("text");
-        NodeList encryptedNodes  = textElement.getElementsByTagName("encrypted");
-        Node textTag;
-        Node encryptedTag = null;
+        String text = textElement.getTextContent();
 
-        if ((textTag = childNodes.item(0)) == null) {
-            throw new XMLParseException("Malformed text message received.");
-        }
+        TextMessage textMessage = new TextMessage(text, "", username);
+        textMessage.unEscapeChars();
 
-        if (encryptedNodes.item(0) != null) {
-            for (int i = 0; i < encryptedNodes.getLength(); i++) {
-                encryptedTag = encryptedNodes.item(i);
-                encryptedTextSb.append(encryptedTag.getTextContent());
-            }
-        }
-
-        String encryptedText = encryptedTextSb.toString();
-        text = textTag.getTextContent();
-
-        return new TextMessage(text, encryptedText, name);
+        return textMessage;
 
     }
 
-    private static Message createFileRequest(Element fileRequestElement) throws XMLParseException {
+    private static Message createFileRequest(Element fileRequestElement, String username) throws XMLParseException {
         String fileName = fileRequestElement.getAttribute("name");
         String userText = fileRequestElement.getTextContent();
         String AESKey = null;
@@ -137,7 +127,7 @@ public class MessageFactory {
             }
         }
 
-        return new FileRequest(userText, fileName, fileSize, type, AESKey, caesarKey);
+        return new FileRequest(userText, username, fileName, fileSize, type, AESKey, caesarKey);
     }
 
     private static Message createFileResponse(Element fileResponseElement) throws XMLParseException {
