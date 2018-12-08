@@ -86,6 +86,15 @@ public class Controller implements ActionListener {
 
     }
 
+    public void makeMultiPart() {
+        int reply = JOptionPane.showConfirmDialog(null, "Do you want to make current chat into multi-part?");
+        if (reply == JOptionPane.YES_OPTION) {
+            Chat chat = model.getActiveChat();
+            int port = view.requestNumber("Which port do you want to listen on?", 1500, 65535);
+            model.createConnectionReceiver(port, chat);
+        }
+    }
+
     public void updateSettings() {
 
     }

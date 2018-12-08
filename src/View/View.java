@@ -29,6 +29,7 @@ public class View implements ActionListener {
         view.controlPanel.closeConnectionButton.addActionListener(view);
         view.controlPanel.chooseChatBox.addActionListener(view);
         view.controlPanel.chatSettingsButton.addActionListener(view);
+        view.controlPanel.createMultiPartButton.addActionListener(view);
 
         //TODO: Lägg till andra knappar så att view lyssnar på dem.
 
@@ -102,8 +103,9 @@ public class View implements ActionListener {
             try {
                 if (!message.senderName.equals("")) {
                     doc.insertString(doc.getLength(), message.senderName + " has disconnected.", null);
+                    this.displayMessage(message.senderName + " has disconnected.");
                 } else {
-                    doc.insertString(doc.getLength(), "The other side disconnected without seding a disconnect message.", null);
+                    this.displayMessage("The other side has diconnected without sending a disconnect message.");
                 }
             } catch (BadLocationException e) {
                 JOptionPane.showMessageDialog(null, "Error in message text insertion.");
@@ -133,17 +135,28 @@ public class View implements ActionListener {
             Controller.getInstance().closeActiveChat();
         } else if (srcButton == controlPanel.closeConnectionButton) {
             Controller.getInstance().closeConnection();
+        } else if (srcButton == controlPanel.createMultiPartButton) {
+            Controller.getInstance().makeMultiPart();
         } else if (srcButton == sendPanel.sendButton) {
             Controller.getInstance().sendMessage(sendPanel.messageTextPane.getText());
         } else if (srcButton == sendPanel.fileButton) {
             Controller.getInstance().sendFile();
         } else if (srcBox == controlPanel.chooseChatBox) {
-            //do stuff
+            //TODO: Fixa så att man kan ändra aktiva chatten här.
         }
     }
 
     public void updateActiveChatBox(int chatNumber) {
         controlPanel.chooseChatBox.addItem("Chat no " + chatNumber);
+    }
+
+    public void displayMessage(String text) {
+        StyledDocument doc = chatPanel.messageHistoryPane.getStyledDocument();
+        try {
+            doc.insertString(doc.getLength(), "<system>: " + text + "\n", null);
+        } catch (BadLocationException e) {
+            System.err.println(e.getStackTrace());
+        }
     }
 
     public void removeChat(int chatNumber) {

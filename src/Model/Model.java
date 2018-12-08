@@ -68,7 +68,14 @@ public class Model {
 
     public void createConnectionReceiver(int port) {
         connectionReceiver = new ConnectionReceiver(port, this);
-        connectionReceiver.run();
+        Thread t = new Thread(connectionReceiver);
+        t.start();
+    }
+
+    public void createConnectionReceiver(int port, Chat chat) {
+        connectionReceiver = new ConnectionReceiver(port, this, chat);
+        Thread t = new Thread(connectionReceiver);
+        t.start();
     }
 
     public Chat getActiveChat() {

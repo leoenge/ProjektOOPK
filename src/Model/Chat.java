@@ -32,6 +32,15 @@ public class Chat implements Observer {
         if (message instanceof TextMessage) {
             messages.add((TextMessage) message);
         }
+        //Check if we have multipart conversation
+        if (connections.size() > 1) {
+            //Broadcast message to the others.
+            for (Connection connection : connections) {
+                if (connection != srcConnection) {
+                    connection.sendMessage(message);
+                }
+            }
+        }
 
         model.notifyView(message);
 

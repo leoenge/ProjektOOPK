@@ -14,6 +14,7 @@ public class ControlPanel extends JPanel {
     JButton chatSettingsButton;
     JButton closeChatButton;
     JButton closeConnectionButton;
+    JButton createMultiPartButton;
     JComboBox chooseChatBox;
 
     ControlPanel() {
@@ -24,6 +25,7 @@ public class ControlPanel extends JPanel {
         chatSettingsButton = new JButton("Chat Settings");
         closeChatButton = new JButton("Close Chat");
         closeConnectionButton = new JButton("Close connection");
+        createMultiPartButton = new JButton("Make into multi-user");
         chooseChatBox = new JComboBox();
 
         /** connectButton.addActionListener(Model.getInstance().view);
@@ -37,6 +39,7 @@ public class ControlPanel extends JPanel {
         this.add(closeChatButton);
         this.add(closeConnectionButton);
         this.add(chooseChatBox);
+        this.add(createMultiPartButton);
         this.setVisible(true);
     }
 
