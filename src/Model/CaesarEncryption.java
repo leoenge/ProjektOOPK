@@ -24,14 +24,12 @@ public class CaesarEncryption {
         for (int i = 0; i < message.length(); i++) {
             if (Character.isLetter(message.charAt(i))) {
                 //Code point for capital A if the current letter is uppercase or of lower case a otherwise.
-                int asciiShift = Character.isUpperCase(message.charAt(i)) ? (int) 'A' : (int) 'a';
+                char asciiShift = Character.isUpperCase(message.charAt(i)) ? 'A' : 'a';
                 //This will be a 0-25 value representing how many code points from 'a' or 'A' this character is.
-                int codePoint = (int) message.charAt(i) - asciiShift;
-                codePoint = ((codePoint + key + keySize) % keySize);
+                char codePoint = (char) (message.charAt(i) - asciiShift);
+                codePoint = (char) ((codePoint + key + keySize) % keySize);
                 //Shift back the value to the characters in question.
-                codePoint += asciiShift;
-
-                encrypted += (char) codePoint;
+                encrypted += (char) (codePoint + asciiShift);
             }
         }
 
