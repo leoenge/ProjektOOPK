@@ -99,7 +99,9 @@ public class Controller {
 
         TextMessage message =
                 new TextMessage(msText, activeChat.getSettings().getFontColor(), activeChat.getSettings().getUserName());
-
+        //Update the message history.
+        view.updateView(message);
+        //Encrypt the message and send it.
         activeChat.sendEncryptedMessage(message);
     }
 

@@ -8,14 +8,18 @@ public class TextMessage extends Message {
 
     //Idea: add array containing message strings in order, so that part of messages can be encrypted.
     Color textColor;
-    String fontType;
 
+    //Copy constructor
+    public TextMessage(TextMessage textMessage) {
+        this.message = textMessage.message;
+        this.textColor = textMessage.textColor;
+        this.senderName = textMessage.senderName;
+    }
 
     public TextMessage(String message, Color color, String senderName) {
         this.message = message;
         this.senderName = senderName;
         this.textColor = color;
-        fontType = null;
     }
 
     public String getSenderName() {

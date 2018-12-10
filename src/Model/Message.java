@@ -13,6 +13,7 @@ public abstract class Message  {
     //!!DOES NOT DO THE ACTUAL ENCRYPTION!!
     void addEncryptionTags(String key, String type) {
         message = "<encrypted type=\"" + type + "\" key=\"" + key + "\">" + message + "</encrypted>";
+        System.err.println(message);
     }
 
     /**

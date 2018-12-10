@@ -23,7 +23,7 @@ public class KeyResponse extends Message {
             this.escapeChars();
         }
         String res = "<message><encryption key=\"" +
-                DatatypeConverter.printHexBinary(rawKey) + "\" type=\"" + type + "\"></encrpytion></message>";
+                DatatypeConverter.printHexBinary(rawKey) + "\" type=\"" + type + "\"></encryption></message>";
 
         return res;
     }

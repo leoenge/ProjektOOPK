@@ -115,13 +115,11 @@ public class Chat implements Observer {
 
     public void sendEncryptedMessage(TextMessage textMessage) {
         this.messages.add(textMessage);
+        TextMessage originalMessage;
         for (Connection connection : connections) {
-            connection.sendEncryptedMessage(textMessage);
+            //Pass copies of the textmessage because sendEncryptedMessage will modify its arguments.
+            connection.sendEncryptedMessage(new TextMessage(textMessage));
         }
-    }
-    public void sendMessage(TextMessage textMessage){}
-    public void sendMessage(Message message, Connection toConnection){
-        toConnection.sendMessage(message);
     }
     public void sendFile(){}
 }

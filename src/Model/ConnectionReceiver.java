@@ -80,7 +80,6 @@ public class ConnectionReceiver implements Runnable {
                 model.view.displayMessage("Now listening to port " + (port + 1) +
                                             " for chat " + (model.chats.indexOf(this.chat) + 1));
             }
-            //Create a new connectionreceiver so that we are always ready for new connection attempts.
         }
 
         //When user answers no and connection attempt was from simpler client
