@@ -96,6 +96,7 @@ public class MessageFactory {
         if (textElement.getElementsByTagName("encrypted").item(0) != null) {
             Element encryptElement = (Element) textElement.getElementsByTagName("encrypted").item(0);
             text = decryptMessage(encryptElement, text, srcConnection);
+            System.err.println(text);
         }
 
         String colorString = textElement.getAttribute("color");
