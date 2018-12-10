@@ -48,7 +48,7 @@ public class Connection extends Observable implements Runnable {
     public void sendMessage(Message message) {
         socketWriter.println(message.toXML(true));
     }
-    public void sendEncryptedMessage(Message message) {
+    void sendEncryptedMessage(Message message) {
         //Escape xml-syntax in the text body before encryption.
         message.escapeChars();
 
@@ -75,12 +75,16 @@ public class Connection extends Observable implements Runnable {
             //Hex code anyway, and the encryption tags are there.
             socketWriter.println(message.toXML(false));
         } else if (chat.getSettings().encryptionType.toLowerCase().equals("caesar")) {
-
+            caesarEncryption.generateRandomKey();
+            String encrypted = caesarEncryption.encrypt(text);
+            String key = Integer.toString(caesarEncryption.getLocalKey());
+            message.addEncryptionTags(key, "caesar");
+            socketWriter.println(message.toXML(false));
         }
 
 
     }
-    public void sendNewKeyRequest(String type, String message) throws IllegalStateException {
+    void sendNewKeyRequest(String type, String message) throws IllegalStateException {
         KeyRequest keyRequest = new KeyRequest(type, message);
         sendMessage(keyRequest);
     }

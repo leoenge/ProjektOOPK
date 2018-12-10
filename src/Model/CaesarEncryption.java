@@ -7,7 +7,31 @@ public class CaesarEncryption {
     private int localKey;
     private int remoteKey;
 
-    public String encrypt(String message, boolean switchSign) {
+    public String encrypt(String message) {
+        return encrypt(message, false);
+    }
+
+    public int getLocalKey() {
+        return localKey;
+    }
+    public int getRemoteKey() { return remoteKey; }
+
+    public String decrypt(String message) {
+        return encrypt(message, true);
+    }
+
+    public void setKey(int keyIn) {
+        //Makes the key a size that we support.
+        keyIn %= keySize;
+        this.remoteKey = keyIn;
+    }
+
+    void generateRandomKey() {
+        Random RNG = new Random();
+        localKey = RNG.nextInt() % keySize;
+    }
+
+    private String encrypt(String message, boolean switchSign) {
         int key = switchSign ? localKey : -localKey;
         String encrypted = "";
         for (int i = 0; i < message.length(); i++) {
@@ -35,24 +59,5 @@ public class CaesarEncryption {
         return encrypted;
     }
 
-    public int getLocalKey() {
-        return localKey;
-    }
-    public int getRemoteKey() { return remoteKey; }
-
-    public String decrypt(String message) {
-        return encrypt(message, true);
-    }
-
-    public void setKey(int keyIn) {
-        //Makes the key a size that we support.
-        keyIn %= keySize;
-        this.remoteKey = keyIn;
-    }
-
-    void generateRandomKey() {
-        Random RNG = new Random();
-        localKey = RNG.nextInt() % keySize;
-    }
 }
 

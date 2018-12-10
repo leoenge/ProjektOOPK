@@ -286,8 +286,7 @@ public class MessageFactory {
             }
 
             srcConnection.caesarEncryption.setKey(key);
-            String decrypted = srcConnection.caesarEncryption.decrypt(message);
-            return decrypted;
+            return srcConnection.caesarEncryption.decrypt(message);
         } else {
             throw new XMLParseException("Received bad encryption type.");
         }
