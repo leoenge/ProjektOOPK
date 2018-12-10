@@ -37,34 +37,32 @@ public class ConnectionReceiver implements Runnable {
      */
     public void handleRequest(Socket socket) throws IOException {
         Connection connection = new Connection(socket);
-        Request request = null;
+        Request request;
 
-        if (connection.socketReader.ready()) {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            System.err.println(e.getStackTrace());
+        }
+        //Reads the stream to see if there is a request message there.
+        String requestStr = connection.socketReader.readLine();
+
+        //If there is a message there we read it and see if it is of correct type.
+        if (requestStr != null) {
+            InputStream is = new ByteArrayInputStream(requestStr.getBytes());
+            ArrayList<Message> messages = new ArrayList<Message>();
             try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                System.err.println(e.getStackTrace());
+                messages = MessageFactory.messageFactory(is, connection);
+            } catch (XMLParseException e) {
             }
-            //Reads the stream to see if there is a request message there.
-            String requestStr = connection.socketReader.readLine();
-
-            //If there is a message there we read it and see if it is of correct type.
-            if (requestStr != null) {
-                InputStream is = new ByteArrayInputStream(requestStr.getBytes());
-                ArrayList<Message> messages = new ArrayList<Message>();
-                try {
-                    messages = MessageFactory.messageFactory(is, connection);
-                } catch (XMLParseException e) {
-                }
-                //Check that there is only one request message.
-                if (messages.size() == 1 && messages.get(0) instanceof Request) {
-                    request = (Request) messages.get(0);
-                } else {
-                    request = null;
-                }
+            //Check that there is only one request message.
+            if (messages.size() == 1 && messages.get(0) instanceof Request) {
+                request = (Request) messages.get(0);
             } else {
                 request = null;
             }
+        } else {
+            request = null;
         }
         //askUser returns which chat user wants to add connection to, or null if user doesn't want to establish new connection.
         //If user wants to create a new chat with incoming connection, askUser will create a chat and return that chat.

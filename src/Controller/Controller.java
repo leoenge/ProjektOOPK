@@ -36,7 +36,6 @@ public class Controller {
 
     //Returns the chat to connect the new connection to or null if user doesn't want to establish the connection
     public boolean askUser(Request request) {
-        //TODO: Fixa så att detta inte blockar eventtråden. Det som är skrivet nu är endast en testversion.
         int answer;
         if (request != null) {
             answer = JOptionPane.showConfirmDialog(null,

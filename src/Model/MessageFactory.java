@@ -221,22 +221,18 @@ public class MessageFactory {
         }
     }
 
-    private static Request createRequest(Element requestElement) {
-        String message = requestElement.getNodeValue();
+    private static Request createRequest(Element requestElement) throws XMLParseException{
+        String message = requestElement.getTextContent();
         boolean reply;
 
         //If request contains reply attribute, we need to see if the reply was affirmative or not
         if (requestElement.hasAttribute("reply")) {
             if (requestElement.getAttribute("reply").equals("yes")) {
                 reply = true;
-            }
-
-            else if (requestElement.getAttribute("reply").equals("no")) {
+            } else if (requestElement.getAttribute("reply").equals("no")) {
                 reply = false;
-            }
-
-            else {
-                return null;
+            } else {
+                throw new XMLParseException("Malformed request received");
             }
 
             return new Request(reply, message);
