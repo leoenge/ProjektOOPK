@@ -62,12 +62,12 @@ public class MessageFactory {
                 return messages;
             }
 
-            if (firstTag.getElementsByTagName("encrypted").item(0) != null) {
-                messages.add(createKeyResponse((Element) firstTag.getElementsByTagName("encrypted").item(0)));
-            }
-
             if (firstTag.getElementsByTagName("text").item(0) != null) {
                 messages.add(createTextMessage((Element) firstTag.getElementsByTagName("text").item(0), username, srcConnection));
+            }
+
+            if (firstTag.getElementsByTagName("encrypted").item(0) != null) {
+                messages.add(createKeyResponse((Element) firstTag.getElementsByTagName("encrypted").item(0)));
             }
 
             if (firstTag.getElementsByTagName("filerequest").item(0) != null) {
@@ -92,11 +92,12 @@ public class MessageFactory {
     }
 
     private static TextMessage createTextMessage(Element textElement, String username, Connection srcConnection) throws XMLParseException {
-        String text = textElement.getTextContent();
+        String text;
         if (textElement.getElementsByTagName("encrypted").item(0) != null) {
             Element encryptElement = (Element) textElement.getElementsByTagName("encrypted").item(0);
-            text = decryptMessage(encryptElement, text, srcConnection);
-            System.err.println(text);
+            text = decryptMessage(encryptElement, encryptElement.getTextContent(), srcConnection);
+        } else {
+            text = textElement.getTextContent();
         }
 
         String colorString = textElement.getAttribute("color");

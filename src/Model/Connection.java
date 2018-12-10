@@ -71,8 +71,6 @@ public class Connection extends Observable implements Runnable {
             //Creates the hex representation of the key.
             String keyHex = DatatypeConverter.printHexBinary(AESEncryption.getLocalKey().getEncoded());
             message.addEncryptionTags(keyHex, "AES");
-            System.err.println(message.toXML(false));
-            System.err.println(message.toXML(true));
             //Convert the message to XML, but don't escape characters in the message part, since they are just
             //Hex code anyway, and the encryption tags are there.
             socketWriter.println(message.toXML(false));
