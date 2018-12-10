@@ -1,7 +1,7 @@
 package Model;
 
 public abstract class Message  {
-    public String message;
+    public String message = null;
     public String senderName;
     public String srcIP;
 
@@ -11,24 +11,26 @@ public abstract class Message  {
 
     //Adds the encryption tags required around the message.
     //!!DOES NOT DO THE ACTUAL ENCRYPTION!!
-    public void addEncryptionTags(String key, String type) {
+    void addEncryptionTags(String key, String type) {
         message = "<encrypted type=\"" + type + "\" key=\"" + key + "\">" + message + "</encrypted>";
     }
 
     /**
      * Escapes xml tags in the text that the user inputs to messages.
      */
-    public void escapeChars() {
-        for (int i = 0; i < message.length(); i++) {
-            message = message.replace("<","&lt;");
-            message = message.replace(">", "&gt;");
+    void escapeChars() {
+        if (message == null) {
+            return;
         }
+        message = message.replace("<","&lt;");
+        message = message.replace(">", "&gt;");
     }
 
-    public void unEscapeChars() {
-        for (int i = 0; i < message.length(); i++) {
-            message = message.replace("&lt;", "<");
-            message = message.replace("&gt;", "<");
+    void unEscapeChars() {
+        if (message == null) {
+            return;
         }
+        message = message.replace("&lt;", "<");
+        message = message.replace("&gt;", "<");
     }
 }
