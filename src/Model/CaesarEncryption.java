@@ -28,7 +28,7 @@ public class CaesarEncryption {
 
     void generateRandomKey() {
         Random RNG = new Random();
-        localKey = RNG.nextInt() % keySize;
+        localKey = RNG.nextInt(keySize - 1);
     }
 
     private String encrypt(String message, boolean switchSign) {
