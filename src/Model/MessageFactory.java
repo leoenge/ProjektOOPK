@@ -150,23 +150,28 @@ public class MessageFactory {
         String type = keyResponseElement.getAttribute("type");
         byte[] rawKey = null;
         int caesarKey = 0;
+        KeyResponse response;
 
         if (type.toLowerCase().equals("aes")) {
             String rawKeyHex = keyResponseElement.getAttribute("key");
             try {
                 rawKey = DatatypeConverter.parseHexBinary(rawKeyHex);
+                response = new KeyResponse(rawKey, type);
             } catch (IllegalArgumentException e) {
                 throw new XMLParseException("Invalid cipher key received.");
             }
         } else if (type.toLowerCase().equals("caesar")) {
             try {
                 caesarKey = Integer.parseInt(type);
+                response = new KeyResponse(caesarKey, type);
             } catch (NumberFormatException e) {
                 throw new XMLParseException("Invalid cipher key received.");
             }
+        } else {
+            throw new XMLParseException("Encryption type not supported");
         }
 
-        return new KeyResponse(rawKey, caesarKey, type);
+        return response;
     }
 
     private static FileResponse createFileResponse(Element fileResponseElement) throws XMLParseException {
