@@ -77,6 +77,7 @@ public class Connection extends Observable implements Runnable {
         } else if (chat.getSettings().encryptionType.toLowerCase().equals("caesar")) {
             int key = caesarEncryption.generateRandomKey();
             String encrypted = caesarEncryption.encrypt(text, key);
+            message.message = encrypted;
             String keyStr = Integer.toString(key);
             message.addEncryptionTags(keyStr, "caesar");
             socketWriter.println(message.toXML(false));
