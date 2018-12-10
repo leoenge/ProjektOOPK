@@ -22,8 +22,10 @@ public class Connection extends Observable implements Runnable {
     private Socket socket;
     PrintWriter socketWriter;
     BufferedReader socketReader;
-    AESEncryption AESEncryption = null;
-    CaesarEncryption caesarEncryption = null;
+    AESEncryption AESEncryption = new AESEncryption();
+    CaesarEncryption caesarEncryption = new CaesarEncryption();
+    private boolean supportsAES;
+    private boolean supportsCaesar;
 
     public Connection(Socket socket) throws IOException{
         this.socket = socket;
@@ -136,7 +138,7 @@ public class Connection extends Observable implements Runnable {
                         //Check for aforementioned key response.
                         if (incMessage instanceof KeyResponse && System.currentTimeMillis() - startTime < 60000) {
                             if (((KeyResponse) incMessage).type.toLowerCase().equals("aes")) {
-                                AESEncryption = new AESEncryption();
+                                supportsAES = true;
                                 try {
                                     AESEncryption.setKey(((KeyResponse) incMessage).rawKey);
                                 } catch (IllegalBlockSizeException e) {
@@ -147,7 +149,7 @@ public class Connection extends Observable implements Runnable {
                             }
 
                             else if (((KeyResponse) incMessage).type.toLowerCase().equals("caesar")) {
-                                caesarEncryption = new CaesarEncryption();
+                                supportsCaesar = true;
                                 int key = ((KeyResponse) incMessage).caesarKey;
                                 caesarEncryption.setKey(key);
                                 continue;
