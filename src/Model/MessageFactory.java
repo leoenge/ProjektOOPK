@@ -205,7 +205,7 @@ public class MessageFactory {
     }
 
     private static KeyRequest createKeyRequest(Element keyRequestElement) throws XMLParseException {
-        String message = keyRequestElement.getNodeValue();
+        String message = keyRequestElement.getTextContent();
         String type;
 
         if (keyRequestElement.hasAttribute("type")) {

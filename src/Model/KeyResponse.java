@@ -7,8 +7,13 @@ public class KeyResponse extends Message {
     int caesarKey;
     String type;
 
-    KeyResponse(byte[] rawKey, int caesarKey, String type) {
+    KeyResponse(byte[] rawKey, String type) {
         this.rawKey = rawKey;
+        this.type = type;
+    }
+
+    KeyResponse(int caesarKey, String type) {
+        this.caesarKey = caesarKey;
         this.type = type;
     }
 

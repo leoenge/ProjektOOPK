@@ -2,6 +2,8 @@ package Model;
 
 import java.io.File;
 import java.net.Socket;
+import java.security.Key;
+import java.security.KeyException;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
@@ -39,6 +41,15 @@ public class Chat implements Observer {
     void receiveMessage(Message message, Connection srcConnection){
         if (message instanceof TextMessage) {
             messages.add((TextMessage) message);
+        } else if (message instanceof KeyRequest) {
+            KeyRequest keyRequest = (KeyRequest) message;
+            if (keyRequest.type.toLowerCase().equals("aes")) {
+                srcConnection.AESEncryption.generateKey();
+                byte[] rawKey = srcConnection.AESEncryption.getLocalKey().getEncoded();
+
+                KeyResponse response = new KeyResponse(rawKey, "AES");
+                srcConnection.sendMessage(response);
+            }
         }
         //Check if we have multipart conversation
         if (connections.size() > 1) {

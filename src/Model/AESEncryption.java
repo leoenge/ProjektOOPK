@@ -6,6 +6,7 @@ import com.sun.xml.internal.bind.api.impl.NameConverter;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.crypto.Data;
 import java.nio.channels.IllegalChannelGroupException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -13,6 +14,7 @@ import java.security.KeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
+import static javax.xml.bind.DatatypeConverter.setDatatypeConverter;
 
 public class AESEncryption {
     private SecretKeySpec localKey = null;
@@ -45,6 +47,13 @@ public class AESEncryption {
 
     SecretKeySpec getRemoteKey() { return remoteKey; }
     SecretKeySpec getLocalKey() { return localKey; }
+    String getLocalKeyHex() throws KeyException{
+        if (localKey == null) {
+            throw new KeyException("No local key initialized");
+        }
+        byte[] rawKey = localKey.getEncoded();
+        return DatatypeConverter.printHexBinary(rawKey);
+    }
 
     public String encrypt(String message) throws KeyException {
         if (localKey == null) {
