@@ -63,7 +63,6 @@ public class Chat implements Observer {
     }
 
     void closeConnection(Connection connection) {
-        //Send disconnect message to other host
         connections.remove(connection);
 
         if (connections.isEmpty()) {

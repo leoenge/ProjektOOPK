@@ -116,16 +116,10 @@ public class View implements ActionListener, ItemListener {
 
             sendPanel.messageTextPane.setText("");
         } else if (message instanceof DisconnectMessage) {
-            try {
-                if (!message.senderName.equals("")) {
-                    doc.insertString(doc.getLength(), message.senderName + " has disconnected.", null);
-                    this.displayMessage(message.senderName + " has disconnected.");
-                } else {
-                    this.displayMessage("The other side has diconnected without sending a disconnect message.");
-                }
-            } catch (BadLocationException e) {
-                JOptionPane.showMessageDialog(null, "Error in message text insertion.");
-                return;
+            if (!message.senderName.equals("")) {
+                this.displayMessage(message.senderName + " has disconnected.");
+            } else {
+                this.displayMessage("The other side has diconnected without sending a disconnect message.");
             }
         }
     }

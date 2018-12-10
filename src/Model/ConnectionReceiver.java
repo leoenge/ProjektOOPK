@@ -40,6 +40,11 @@ public class ConnectionReceiver implements Runnable {
         Request request = null;
 
         if (connection.socketReader.ready()) {
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                System.err.println(e.getStackTrace());
+            }
             //Reads the stream to see if there is a request message there.
             String requestStr = connection.socketReader.readLine();
 
