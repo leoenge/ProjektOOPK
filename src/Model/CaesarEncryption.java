@@ -4,35 +4,22 @@ import java.util.Random;
 
 public class CaesarEncryption {
     private static final int keySize = 26;
-    private int localKey;
-    private int remoteKey;
 
-    public String encrypt(String message) {
-        return encrypt(message, false);
+    public String encrypt(String message, int key) {
+        return encrypt(message, key, false);
     }
 
-    public int getLocalKey() {
-        return localKey;
-    }
-    public int getRemoteKey() { return remoteKey; }
-
-    public String decrypt(String message) {
-        return encrypt(message, true);
+    public String decrypt(String message, int key) {
+        return encrypt(message, key,true);
     }
 
-    public void setKey(int keyIn) {
-        //Makes the key a size that we support.
-        keyIn %= keySize;
-        this.remoteKey = keyIn;
-    }
-
-    void generateRandomKey() {
+    int generateRandomKey() {
         Random RNG = new Random();
-        localKey = RNG.nextInt(keySize - 1);
+        return RNG.nextInt(keySize - 1);
     }
 
-    private String encrypt(String message, boolean switchSign) {
-        int key = switchSign ? localKey : -localKey;
+    private String encrypt(String message, int keyIn, boolean switchSign) {
+        int key = switchSign ? -keyIn : keyIn;
         String encrypted = "";
         for (int i = 0; i < message.length(); i++) {
             if (Character.isLetter(message.charAt(i))) {

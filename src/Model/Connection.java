@@ -75,10 +75,10 @@ public class Connection extends Observable implements Runnable {
             //Hex code anyway, and the encryption tags are there.
             socketWriter.println(message.toXML(false));
         } else if (chat.getSettings().encryptionType.toLowerCase().equals("caesar")) {
-            caesarEncryption.generateRandomKey();
-            String encrypted = caesarEncryption.encrypt(text);
-            String key = Integer.toString(caesarEncryption.getLocalKey());
-            message.addEncryptionTags(key, "caesar");
+            int key = caesarEncryption.generateRandomKey();
+            String encrypted = caesarEncryption.encrypt(text, key);
+            String keyStr = Integer.toString(key);
+            message.addEncryptionTags(keyStr, "caesar");
             socketWriter.println(message.toXML(false));
         }
 
@@ -143,19 +143,11 @@ public class Connection extends Observable implements Runnable {
                         if (incMessage instanceof KeyResponse && System.currentTimeMillis() - startTime < 60000) {
                             if (((KeyResponse) incMessage).type.toLowerCase().equals("aes")) {
                                 supportsAES = true;
-                                try {
-                                    AESEncryption.setKey(((KeyResponse) incMessage).rawKey);
-                                } catch (IllegalBlockSizeException e) {
-                                    AESEncryption = null;
-                                }
-
                                 continue;
                             }
 
                             else if (((KeyResponse) incMessage).type.toLowerCase().equals("caesar")) {
                                 supportsCaesar = true;
-                                int key = ((KeyResponse) incMessage).caesarKey;
-                                caesarEncryption.setKey(key);
                                 continue;
                             }
                         }
