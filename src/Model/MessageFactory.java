@@ -150,8 +150,8 @@ public class MessageFactory {
 
     private static KeyResponse createKeyResponse(Element keyResponseElement) throws XMLParseException{
         String type = keyResponseElement.getAttribute("type");
-        byte[] rawKey = null;
-        int caesarKey = 0;
+        byte[] rawKey;
+        int caesarKey;
         KeyResponse response;
 
         if (type.toLowerCase().equals("aes")) {
@@ -164,7 +164,7 @@ public class MessageFactory {
             }
         } else if (type.toLowerCase().equals("caesar")) {
             try {
-                caesarKey = Integer.parseInt(type);
+                caesarKey = Integer.parseInt(keyResponseElement.getAttribute("key"));
                 response = new KeyResponse(caesarKey, type);
             } catch (NumberFormatException e) {
                 throw new XMLParseException("Invalid cipher key received.");
