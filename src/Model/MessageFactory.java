@@ -214,7 +214,7 @@ public class MessageFactory {
             throw new XMLParseException("Invalid key request received: no type attribute found");
         }
 
-        if (type.toLowerCase() == "aes" || type.toLowerCase() == "caesar") {
+        if (type.toLowerCase().equals("aes") || type.toLowerCase().equals("caesar")) {
             return new KeyRequest(type, message);
         } else {
             throw new XMLParseException("Incoming encryption type not supported.");

@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -122,12 +123,15 @@ public class Controller {
     public void requestConnection() {
         String IPstr = view.requestString("Which IP address/hostname do you want to connect to?");
         int port = view.requestNumber("What port do you want to connect to?", 0, 65535);
+        String requestMesage = view.requestString("What message do you want to send?");
+        Request request = new Request(requestMesage);
         Connection connection;
 
         try {
             InetAddress IPaddr = InetAddress.getByName(IPstr);
             Socket socket = new Socket(IPaddr, port);
             connection = new Connection(socket);
+            connection.sendMessage(request);
         } catch (UnknownHostException e) {
             JOptionPane.showMessageDialog(null, "Cannot resolve the IP address, try again.");
             requestConnection();
