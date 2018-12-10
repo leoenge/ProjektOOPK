@@ -1,8 +1,8 @@
 package View;
 
 import javax.swing.*;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.*;
+import javax.xml.soap.Text;
 
 import Controller.Controller;
 import Model.*;
@@ -11,10 +11,13 @@ import jdk.nashorn.internal.scripts.JO;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
-public class View implements ActionListener {
+public class View implements ActionListener, ItemListener {
     private Model model;
     public JFrame frame;
     private ControlPanel controlPanel;
@@ -23,13 +26,17 @@ public class View implements ActionListener {
 
     public static View init_view(Model modelIn) {
         View view = new View(modelIn);
+
         view.sendPanel.sendButton.addActionListener(view);
         view.sendPanel.fileButton.addActionListener(view);
+        view.sendPanel.sendEncryptedButton.addActionListener(view);
+        view.sendPanel.sendEncryptedFileButton.addActionListener(view);
         view.controlPanel.closeChatButton.addActionListener(view);
         view.controlPanel.closeConnectionButton.addActionListener(view);
-        view.controlPanel.chooseChatBox.addActionListener(view);
+        view.controlPanel.chooseChatBox.addItemListener(view);
         view.controlPanel.chatSettingsButton.addActionListener(view);
         view.controlPanel.createMultiPartButton.addActionListener(view);
+        view.controlPanel.connectButton.addActionListener(view);
 
         //TODO: Lägg till andra knappar så att view lyssnar på dem.
 
@@ -59,7 +66,6 @@ public class View implements ActionListener {
 
     public int requestNumber(String promptMessage) {
         int res;
-
         try {
             res = Integer.parseInt(JOptionPane.showInputDialog(promptMessage));
         } catch (NumberFormatException e) {
@@ -91,8 +97,18 @@ public class View implements ActionListener {
         StyledDocument doc = chatPanel.messageHistoryPane.getStyledDocument();
         if (message instanceof TextMessage) {
             try {
-                doc.insertString(doc.getLength(),
-                        ((TextMessage) message).getSenderName() + ": " + message.message + "\n", null);
+                //If there is no color specified for the message, just put it in as default
+                if (((TextMessage) message).getTextColor() == null) {
+                    doc.insertString(doc.getLength(),
+                            ((TextMessage) message).getSenderName() + ": " + message.message + "\n", null);
+                } else {
+                    SimpleAttributeSet style = new SimpleAttributeSet();
+                    StyleConstants.setForeground(style, ((TextMessage) message).getTextColor());
+                    //Show the username without color as the default black.
+                    doc.insertString(doc.getLength(), ((TextMessage) message).getSenderName() + ": ", null);
+                    //Show the message with color.
+                    doc.insertString(doc.getLength(), message.message + "\n", style);
+                }
             } catch (BadLocationException e) {
                 JOptionPane.showMessageDialog(null, "Error in message text insertion.");
                 return;
@@ -112,6 +128,24 @@ public class View implements ActionListener {
                 return;
             }
         }
+    }
+
+    /**
+     * Clears the sending message panel and the message history panel.
+     * Adds the messages in the messages parameter to the message history panel.
+     */
+    public void updateWindows(Iterable<TextMessage> messages) {
+        //Clears the message text from user input panel and message history panels.
+        this.clearWindows();
+
+        for (TextMessage message : messages) {
+            updateView(message);
+        }
+    }
+
+    public void clearWindows() {
+        chatPanel.messageHistoryPane.setText("");
+        sendPanel.messageTextPane.setText("");
     }
 
     //Funderar på att sätta lyssnaren på knapparna i View istället för i Controller så att controller inte behöver känna till
@@ -141,13 +175,20 @@ public class View implements ActionListener {
             Controller.getInstance().sendMessage(sendPanel.messageTextPane.getText());
         } else if (srcButton == sendPanel.fileButton) {
             Controller.getInstance().sendFile();
-        } else if (srcBox == controlPanel.chooseChatBox) {
-            //TODO: Fixa så att man kan ändra aktiva chatten här.
+        } else if (srcButton == sendPanel.sendEncryptedButton) {
+            Controller.getInstance().sendEncryptedMessage(sendPanel.messageTextPane.getText());
         }
     }
 
-    public void updateActiveChatBox(int chatNumber) {
-        controlPanel.chooseChatBox.addItem("Chat no " + chatNumber);
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            Chat selectedChat = (Chat) e.getItem();
+            Controller.getInstance().changeActiveChat(selectedChat);
+        }
+    }
+
+    public void updateActiveChatBox(Chat chat) {
+        controlPanel.chooseChatBox.addItem(chat);
     }
 
     public void displayMessage(String text) {
@@ -159,11 +200,11 @@ public class View implements ActionListener {
         }
     }
 
-    public void removeChat(int chatNumber) {
+    public void removeChat(Chat chat) {
         //Remove the chat from the choicebox
-        controlPanel.chooseChatBox.removeItemAt(chatNumber);
+        controlPanel.chooseChatBox.removeItem(chat);
         //Clear the text from this chat in the panels.
-        chatPanel.messageHistoryPane.setText("");
         sendPanel.messageTextPane.setText("");
+        chatPanel.messageHistoryPane.setText("");
     }
 }

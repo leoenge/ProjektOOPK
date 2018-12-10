@@ -14,7 +14,7 @@ public class FileResponse extends Message {
     }
 
     @Override
-    public String toXML() {
+    public String toXML(boolean escapeChars) {
         return null;
     }
 }

@@ -5,7 +5,8 @@ public class DisconnectMessage extends Message {
         this.senderName = senderName;
     }
 
-    public String toXML() {
+    @Override
+    public String toXML(boolean escapeChars) {
         return "<message sender=\""+senderName+"\"><disconnect /></message>";
     }
 }

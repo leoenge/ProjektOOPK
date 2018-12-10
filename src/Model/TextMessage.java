@@ -1,28 +1,57 @@
 package Model;
 
+import java.awt.*;
+
 public class TextMessage extends Message {
+    //24 bit bitmask.
+    static final int bitMask24 = 0xffffff;
 
     //Idea: add array containing message strings in order, so that part of messages can be encrypted.
-    String textColor;
+    Color textColor;
     String fontType;
-    String encryptedText;
 
-    public TextMessage(String message, String encryptedIn, String senderName) {
+
+    public TextMessage(String message, Color color, String senderName) {
         this.message = message;
         this.senderName = senderName;
-        textColor = null;
+        this.textColor = color;
         fontType = null;
-        encryptedText = encryptedIn;
     }
 
     public String getSenderName() {
         return senderName;
     }
+    public Color getTextColor() { return textColor; }
+
+    public String internalTags() {
+        String outXML = "";
+        if (textColor != null) {
+            outXML += "<text color=\"" + colorHex() + "\">" + message + "</text>";
+        } else {
+            outXML += "<text>" + message + "</text>";
+        }
+        return outXML;
+    }
+
+    public String toEncryptedXML(String encryptedString, String key, String type) {
+        String res = "";
+        if (senderName != null) {
+            res += "<message sender=\"" + senderName + "\"><encrypted type=\"" + type + "\" key=\"" + key + "\">";
+        } else {
+            res += "<message><encrypted type=\"" + type + "\" key=\"" + key + "\">";
+        }
+
+        res += encryptedString + "</encrypted></message>";
+
+        return res;
+    }
 
     @Override
-    public String toXML() {
-        //Escape XML-characters in the user inputted text.
-        this.escapeChars();
+    public String toXML(boolean escapeChars) {
+        if (escapeChars) {
+            //Escape XML-characters in the user inputted text.
+            this.escapeChars();
+        }
         String outXML = "";
 
         if (senderName != null) {
@@ -31,12 +60,8 @@ public class TextMessage extends Message {
             outXML += "<message>";
         }
 
-        if (encryptedText != null) {
-            //Do handling of encryption here
-        }
-
         if (textColor != null) {
-            outXML += "<text color=\"" + textColor + ">" + message + "</text>";
+            outXML += "<text color=\"" + colorHex() + "\">" + message + "</text>";
         } else {
             outXML += "<text>" + message + "</text>";
         }
@@ -45,5 +70,18 @@ public class TextMessage extends Message {
 
         return outXML;
 
+    }
+
+    private String colorHex() {
+        //Extract only the first 24 bits of the RGB value, since the remaining bits are for alpha
+        //which we are not interested in.
+        int RGB = textColor.getRGB() & bitMask24;
+        String RGBstr = Integer.toHexString(RGB);
+        //Pad with leading zeros until we have 6 digits, so that we match the specification.
+        while (RGBstr.length() < 6) {
+            RGBstr = "0" + RGBstr;
+        }
+        RGBstr = "#" + RGBstr;
+        return RGBstr;
     }
 }

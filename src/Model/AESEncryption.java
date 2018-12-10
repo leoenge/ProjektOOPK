@@ -1,18 +1,113 @@
 package Model;
 
-public class AESEncryption extends Encryption {
-    @Override
-    public String encrypt(String message) {
-        return null;
+import com.sun.crypto.provider.AESKeyGenerator;
+import com.sun.xml.internal.bind.api.impl.NameConverter;
+
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.nio.channels.IllegalChannelGroupException;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.KeyException;
+import java.security.NoSuchAlgorithmException;
+
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
+
+public class AESEncryption {
+    private SecretKeySpec localKey = null;
+    private SecretKeySpec remoteKey = null;
+    Cipher cipher;
+
+    AESEncryption() {
     }
 
-    @Override
-    public String getPublicKey() {
-        return null;
+    public void generateKey() {
+        KeyGenerator AESKeyGen;
+        try {
+            AESKeyGen = KeyGenerator.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            return;
+        }
+
+        AESKeyGen.init(128);
+        localKey = (SecretKeySpec) AESKeyGen.generateKey();
     }
 
-    @Override
-    public String decrypt(String message) {
-        return null;
+    void setKey(byte[] rawKey) throws IllegalBlockSizeException{
+        //AES keys need to be 128/192/256 bits long.
+        if (!((rawKey.length == 16) || (rawKey.length == 24) || (rawKey.length == 32))) {
+            throw new IllegalBlockSizeException("Key size not supported");
+        }
+
+        remoteKey = new SecretKeySpec(rawKey, "AES");
+    }
+
+    SecretKeySpec getRemoteKey() { return remoteKey; }
+    SecretKeySpec getLocalKey() { return localKey; }
+
+    public String encrypt(String message) throws KeyException {
+        if (localKey == null) {
+            throw new KeyException("No key initialized for AES.");
+        }
+
+        //Create an AES cipher instance
+        try {
+            cipher = Cipher.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println(e.getStackTrace());
+            return null;
+        } catch (NoSuchPaddingException nspe) {
+            System.err.println(nspe.getStackTrace());
+            return null;
+        }
+        //Initialize the cipher with key into encryption mode.
+        cipher.init(Cipher.ENCRYPT_MODE, localKey);
+        byte[] encryptedData;
+        try {
+            //Encrypts the string encoded in UTF-8
+            encryptedData = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        } catch (IllegalBlockSizeException ibse) {
+            System.err.println(ibse.getStackTrace());
+            return null;
+        } catch (BadPaddingException bpe) {
+            System.err.println(bpe.getStackTrace());
+            return null;
+        }
+
+        //Returns a byte-by-byte hex representation of the data.
+        return DatatypeConverter.printHexBinary(encryptedData);
+    }
+
+    public String decrypt(String message) throws KeyException, IllegalArgumentException {
+        if (remoteKey == null) {
+            throw new KeyException("No remote key set");
+        }
+
+        byte[] encryptedData = DatatypeConverter.parseHexBinary(message);
+        byte[] decryptedData;
+        try {
+            cipher = Cipher.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Something went wrong when initializing cipher.");
+        } catch (NoSuchPaddingException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Something went wrong when making padding for AES.");
+        }
+
+        cipher.init(Cipher.DECRYPT_MODE, remoteKey);
+
+        try {
+            decryptedData = cipher.doFinal(encryptedData);
+        } catch (IllegalBlockSizeException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Block size not allowed in AES.");
+        } catch (BadPaddingException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Bad padding in AES.");
+        }
+
+        return new String(decryptedData, StandardCharsets.UTF_8);
     }
 }

@@ -20,7 +20,7 @@ public class FileRequest extends Message {
     }
 
     @Override
-    public String toXML() {
+    public String toXML(boolean escapeChars) {
         return null;
     }
 }

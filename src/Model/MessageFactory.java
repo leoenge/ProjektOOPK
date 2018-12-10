@@ -2,17 +2,18 @@ package Model;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import javax.crypto.IllegalBlockSizeException;
 import javax.management.modelmbean.XMLParseException;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.*;
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
+import java.security.KeyException;
 import java.util.ArrayList;
-import java.util.List;
 
 //TODO: Add warning to the user that something went wrong if MessageFactory returns null.
 
@@ -25,7 +26,7 @@ public class MessageFactory {
      *
      * @throws XMLParseException if message is not correctly formatted
      */
-    public static ArrayList<Message> messageFactory(InputStream inputStream) throws XMLParseException{
+    public static ArrayList<Message> messageFactory(InputStream inputStream, Connection srcConnection) throws XMLParseException {
 
         //Instantiate factory and DocumentBuilder
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -58,12 +59,15 @@ public class MessageFactory {
             String username = firstTag.getAttribute("sender");
             if (firstTag.getElementsByTagName("disconnect").item(0) != null) {
                 messages.add(new DisconnectMessage(username));
-                System.err.println("hi");
                 return messages;
             }
 
+            if (firstTag.getElementsByTagName("encrypted").item(0) != null) {
+                messages.add(createKeyResponse((Element) firstTag.getElementsByTagName("encrypted").item(0)));
+            }
+
             if (firstTag.getElementsByTagName("text").item(0) != null) {
-                messages.add(createTextMessage((Element) firstTag.getElementsByTagName("text").item(0), username));
+                messages.add(createTextMessage((Element) firstTag.getElementsByTagName("text").item(0), username, srcConnection));
             }
 
             if (firstTag.getElementsByTagName("filerequest").item(0) != null) {
@@ -87,18 +91,30 @@ public class MessageFactory {
         return messages;
     }
 
-    private static Message createTextMessage(Element textElement, String username) throws XMLParseException{
-
+    private static TextMessage createTextMessage(Element textElement, String username, Connection srcConnection) throws XMLParseException {
         String text = textElement.getTextContent();
+        if (textElement.getElementsByTagName("encrypted").item(0) != null) {
+            Element encryptElement = (Element) textElement.getElementsByTagName("encrypted").item(0);
+            text = decryptMessage(encryptElement, text, srcConnection);
+        }
 
-        TextMessage textMessage = new TextMessage(text, "", username);
+        String colorString = textElement.getAttribute("color");
+        Color color;
+        try {
+            color = Color.decode(colorString);
+        } catch (NumberFormatException e) {
+            //If the color hex-string is badly formatted just set the color to null.
+            color = null;
+            System.err.println("Failed to decode color.");
+        }
+
+        TextMessage textMessage = new TextMessage(text, color, username);
         textMessage.unEscapeChars();
 
         return textMessage;
-
     }
 
-    private static Message createFileRequest(Element fileRequestElement, String username) throws XMLParseException {
+    private static FileRequest createFileRequest(Element fileRequestElement, String username) throws XMLParseException {
         String fileName = fileRequestElement.getAttribute("name");
         String userText = fileRequestElement.getTextContent();
         String AESKey = null;
@@ -130,7 +146,30 @@ public class MessageFactory {
         return new FileRequest(userText, username, fileName, fileSize, type, AESKey, caesarKey);
     }
 
-    private static Message createFileResponse(Element fileResponseElement) throws XMLParseException {
+    private static KeyResponse createKeyResponse(Element keyResponseElement) throws XMLParseException{
+        String type = keyResponseElement.getAttribute("type");
+        byte[] rawKey = null;
+        int caesarKey = 0;
+
+        if (type.toLowerCase().equals("aes")) {
+            String rawKeyHex = keyResponseElement.getAttribute("key");
+            try {
+                rawKey = DatatypeConverter.parseHexBinary(rawKeyHex);
+            } catch (IllegalArgumentException e) {
+                throw new XMLParseException("Invalid cipher key received.");
+            }
+        } else if (type.toLowerCase().equals("caesar")) {
+            try {
+                caesarKey = Integer.parseInt(type);
+            } catch (NumberFormatException e) {
+                throw new XMLParseException("Invalid cipher key received.");
+            }
+        }
+
+        return new KeyResponse(rawKey, caesarKey, type);
+    }
+
+    private static FileResponse createFileResponse(Element fileResponseElement) throws XMLParseException {
         String replyString;
         boolean reply;
         int portNumber;
@@ -165,35 +204,24 @@ public class MessageFactory {
 
     }
 
-    private static Message createKeyRequest(Element keyRequestElement) throws XMLParseException {
+    private static KeyRequest createKeyRequest(Element keyRequestElement) throws XMLParseException {
         String message = keyRequestElement.getNodeValue();
-        String encryptionString;
-        Encryption encryption;
+        String type;
 
         if (keyRequestElement.hasAttribute("type")) {
-            encryptionString = keyRequestElement.getAttribute("type");
+            type = keyRequestElement.getAttribute("type");
         } else {
             throw new XMLParseException("Invalid key request received: no type attribute found");
         }
 
-        switch (encryptionString.toLowerCase()) {
-            case "rsa":
-                encryption = new RSAEncryption();
-                break;
-            case "caesar":
-                encryption = new CeasarEncryption();
-                break;
-            case "aes":
-                encryption = new AESEncryption();
-                break;
-            default:
-                throw new XMLParseException("key request error: encryption type not supported");
+        if (type.toLowerCase() == "aes" || type.toLowerCase() == "caesar") {
+            return new KeyRequest(type, message);
+        } else {
+            throw new XMLParseException("Incoming encryption type not supported.");
         }
-
-        return new KeyRequest(encryption, message);
     }
 
-    private static Message createRequest(Element requestElement) {
+    private static Request createRequest(Element requestElement) {
         String message = requestElement.getNodeValue();
         boolean reply;
 
@@ -217,6 +245,48 @@ public class MessageFactory {
         //Else it was a new request containing only a message.
         else {
             return new Request(message);
+        }
+    }
+
+    private static String decryptMessage(Element encryptElement, String message, Connection srcConnection) throws XMLParseException {
+        if (encryptElement.getAttribute("type").toLowerCase().equals("aes")) {
+            byte[] rawKey;
+            try {
+                rawKey = DatatypeConverter.parseHexBinary(encryptElement.getAttribute("key"));
+            } catch (IllegalArgumentException e) {
+                throw new XMLParseException("Couldn't parse AES key.");
+            }
+
+            try {
+                srcConnection.AESEncryption.setKey(rawKey);
+            } catch (IllegalBlockSizeException e) {
+                throw new XMLParseException("AES key of incorrect size");
+            }
+
+            String decrypted;
+            try {
+                decrypted = srcConnection.AESEncryption.decrypt(message);
+            } catch (KeyException e) {
+                throw new XMLParseException("Key not found when attempting to decrypt incoming message");
+            }
+
+            return decrypted;
+        }
+
+        else if (encryptElement.getAttribute("type").toLowerCase().equals("caesar")) {
+            int key;
+
+            try {
+                key = Integer.parseInt(encryptElement.getAttribute("key"));
+            } catch (NumberFormatException e) {
+                throw new XMLParseException("Could not parse a given caesar key");
+            }
+
+            srcConnection.caesarEncryption.setKey(key);
+            String decrypted = srcConnection.caesarEncryption.decrypt(message);
+            return decrypted;
+        } else {
+            throw new XMLParseException("Received bad encryption type.");
         }
     }
 }

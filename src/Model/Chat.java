@@ -11,12 +11,16 @@ public class Chat implements Observer {
     ChatSettings settings;
     ArrayList<TextMessage> messages;
     Connection fileConnection;
-    private Model model;
+    Model model;
 
-    public Chat(ChatSettings settings, Model model) {
+    //False if we connected to a remote in this chat, true otherwise.
+    private boolean isServer;
+
+    public Chat(ChatSettings settings, Model model, boolean isServer) {
         this.connections = new ArrayList<Connection>();
         this.settings = settings;
         this.model = model;
+        this.isServer = isServer;
         this.messages = new ArrayList<TextMessage>();
     }
     /*
@@ -27,6 +31,10 @@ public class Chat implements Observer {
     public ChatSettings getSettings() {
         return settings;
     }
+    public ArrayList<TextMessage> getMessageHistory() {
+        return this.messages;
+    }
+    public ArrayList<Connection> getConnections() { return this.connections; }
 
     void receiveMessage(Message message, Connection srcConnection){
         if (message instanceof TextMessage) {
@@ -42,7 +50,10 @@ public class Chat implements Observer {
             }
         }
 
-        model.notifyView(message);
+        //If this is the currently active chat, we display the message in the message panel.
+        if (model.getActiveChat() == this) {
+            model.notifyView(message);
+        }
 
         //TODO: Add support for other message types.
     }
@@ -60,6 +71,17 @@ public class Chat implements Observer {
         }
     }
 
+    /**
+     * String representation of the current chat as the index the chat has in model.
+     * Used for showing chats in JComboBox or similar.
+     * @return The string representation of the chat
+     */
+    @Override
+    public String toString() {
+        int index = model.chats.indexOf(this);
+        return "Chat " + (index + 1);
+    }
+
     //Called when a connection receives a new message from the socket.
     public void update(Observable connection, Object newMessage) {
         if (newMessage instanceof DisconnectMessage) {
@@ -74,10 +96,17 @@ public class Chat implements Observer {
         }
     }
 
-    public void sendTextMessage(String messageText) {
-        TextMessage message = new TextMessage(messageText, null, settings.userName);
+    public void sendTextMessage(TextMessage textMessage) {
+        this.messages.add(textMessage);
         for (Connection connection:connections) {
-            connection.sendMessage(message);
+            connection.sendMessage(textMessage);
+        }
+    }
+
+    public void sendEncryptedMessage(TextMessage textMessage) {
+        this.messages.add(textMessage);
+        for (Connection connection : connections) {
+            connection.sendEncryptedMessage(textMessage);
         }
     }
     public void sendMessage(TextMessage textMessage){}

@@ -12,7 +12,10 @@ public class Request extends Message {
         message = messageIn;
     }
     @Override
-    public String toXML() {
+    public String toXML(boolean escapeChars) {
+        if (escapeChars) {
+            this.escapeChars();
+        }
         String outXML = "";
 
         if (!reply) {

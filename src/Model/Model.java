@@ -15,36 +15,51 @@ public class Model {
     ArrayList<Chat> chats;
     Chat activeChat;
     ConnectionReceiver connectionReceiver;
-    ChatSettings default_settings;
+    private String defaultUsername;
 
     public Model() {
         chats = new ArrayList<Chat>();
         view = View.init_view(this);
-        String username = view.requestString("What default username do you want?");
+        defaultUsername = view.requestString("What default username do you want?");
         int portNumber =
                 view.requestNumber("What port number do you want to use? (1500 - 65535)", 1500, 65535);
 
-        default_settings = new ChatSettings(username);
         createConnectionReceiver(portNumber);
     }
 
-    public Chat createChat() {
-        Chat newChat =  new Chat(default_settings, this);
+    public String getDefaultUsername() {
+        return defaultUsername;
+    }
+
+    public Chat createChat(boolean isServer) {
+        Chat newChat =  new Chat(new ChatSettings(defaultUsername), this, isServer);
         chats.add(newChat);
 
         if (chats.size() == 1) {
             activeChat = chats.get(0);
         }
 
-        view.updateActiveChatBox(chats.size());
+        view.updateActiveChatBox(newChat);
 
         return newChat;
     }
 
     void removeChat(Chat chat) {
-        int chatIndex = chats.indexOf(chat);
         chats.remove(chat);
-        view.removeChat(chatIndex);
+        view.removeChat(chat);
+
+        //Set a new active chat and updates the message history window. If there are no more active chats,
+        //set the new active chat to null.
+        if (chats.size() > 0) {
+            activeChat = chats.get(0);
+            //Adds the message history of the new chat to the message history pane.
+            view.updateWindows(activeChat.getMessageHistory());
+        } else {
+            activeChat = null;
+            //Clear the chat windows from text.
+            view.clearWindows();
+        }
+
     }
 
     public void closeChat(Chat chat) {
@@ -81,8 +96,10 @@ public class Model {
     public Chat getActiveChat() {
         return activeChat;
     }
+    public void setActiveChat(Chat chat) { this.activeChat = chat; }
 
     void notifyView(Message message) {
         view.updateView(message);
     }
+    void displayMessage(String message) { view.displayMessage(message);}
 }

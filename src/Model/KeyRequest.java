@@ -1,15 +1,18 @@
 package Model;
 
 public class KeyRequest extends Message {
-    public Encryption encryption;
-
-    public KeyRequest(Encryption encryptionIn, String messageIn) {
-        encryption = encryptionIn;
-        message = messageIn;
+    public String type;
+    public KeyRequest(String type, String message) {
+        this.type = type;
+        this.message = message;
     }
 
     @Override
-    public String toXML() {
-        return null;
+    public String toXML(boolean escapeChars) {
+        if (escapeChars) {
+            this.escapeChars();
+        }
+        String res = "<message><keyrequest type=\"" + type + "\">" + message + "</keyrequest></message>";
+        return res;
     }
 }

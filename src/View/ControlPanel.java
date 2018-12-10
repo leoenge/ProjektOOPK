@@ -1,7 +1,7 @@
 package View;
 
 import Controller.Controller;
-import Model.Model;
+import Model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,10 +15,12 @@ public class ControlPanel extends JPanel {
     JButton closeChatButton;
     JButton closeConnectionButton;
     JButton createMultiPartButton;
+    JButton setUpEncryptionButton;
     JComboBox chooseChatBox;
 
+
     ControlPanel() {
-        this.setPreferredSize(new Dimension(500,75));
+        this.setPreferredSize(new Dimension(700,100));
         this.setLayout(new FlowLayout());
 
         connectButton = new JButton("Connect");
@@ -26,7 +28,7 @@ public class ControlPanel extends JPanel {
         closeChatButton = new JButton("Close Chat");
         closeConnectionButton = new JButton("Close connection");
         createMultiPartButton = new JButton("Make into multi-user");
-        chooseChatBox = new JComboBox();
+        chooseChatBox = new JComboBox<Chat>();
 
         /** connectButton.addActionListener(Model.getInstance().view);
         chatSettingsButton.addActionListener(Model.getInstance().view);

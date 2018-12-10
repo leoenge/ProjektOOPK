@@ -48,7 +48,7 @@ public class ConnectionReceiver implements Runnable {
                 InputStream is = new ByteArrayInputStream(requestStr.getBytes());
                 ArrayList<Message> messages = new ArrayList<Message>();
                 try {
-                    messages = MessageFactory.messageFactory(is);
+                    messages = MessageFactory.messageFactory(is, connection);
                 } catch (XMLParseException e) {
                 }
                 //Check that there is only one request message.
@@ -68,7 +68,7 @@ public class ConnectionReceiver implements Runnable {
             Thread conn_thread = new Thread(connection);
             conn_thread.start();
             if (this.chat == null) {
-                model.addToChat(connection, model.createChat());
+                model.addToChat(connection, model.createChat(true));
                 model.createConnectionReceiver(port + 1);
                 model.view.displayMessage("Now listening to port " + (port + 1) + " for connections to new chat");
             } else {
@@ -82,8 +82,8 @@ public class ConnectionReceiver implements Runnable {
 
         //When user answers no and connection attempt was from simpler client
         else if (request == null) {
-            connection.sendMessage(new TextMessage("Connection refused", "",
-                    model.default_settings.userName));
+            connection.sendMessage(new TextMessage("Connection refused", null,
+                    model.getDefaultUsername()));
             socket.close();
         }
         //When user answers no and connection attempt was from B1-implementing client
