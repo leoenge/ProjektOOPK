@@ -40,6 +40,9 @@ public class Chat implements Observer {
     public ArrayList<Connection> getConnections() { return this.connections; }
 
     void receiveMessage(Message message, Connection srcConnection){
+        System.err.println("Message to ReceiveMessage" + message.toXML(true));
+        System.err.println("Is textMessage " + (message instanceof TextMessage));
+        System.err.println("Is file Request " + (message instanceof KeyRequest));
         if (message instanceof TextMessage) {
             messages.add((TextMessage) message);
             //Check if we have multipart conversation
