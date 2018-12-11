@@ -1,5 +1,7 @@
 package Model;
 
+import javax.crypto.IllegalBlockSizeException;
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.net.Socket;
 import java.security.Key;
@@ -57,6 +59,10 @@ public class Chat implements Observer {
 
                 KeyResponse response = new KeyResponse(rawKey, "AES");
                 srcConnection.sendMessage(response);
+            } else if (keyRequest.type.toLowerCase().equals("caesar")) {
+                int caesarKey = srcConnection.caesarEncryption.generateRandomKey();
+                KeyResponse response = new KeyResponse(caesarKey, "caesar");
+                srcConnection.sendMessage(response);
             }
         } else if (message instanceof FileRequest) {
             long size = ((FileRequest)message).size;
@@ -65,11 +71,28 @@ public class Chat implements Observer {
             String replyString = model.view.requestString("Input an answer message here");
 
             FileResponse fileResponse;
+            fileResponse = new FileResponse(replyString, true, 10000);
+            srcConnection.sendMessage(fileResponse);
             if (reply) {
-                fileResponse = new FileResponse(replyString, reply, 10000);
-                srcConnection.sendMessage(fileResponse);
+                FileReceiver fileReceiver;
+                if (((FileRequest) message).AESKey != null) {
+                    byte[] rawKey = DatatypeConverter.parseHexBinary(((FileRequest) message).AESKey);
+
+                    try {
+                        srcConnection.AESEncryption.setKey(rawKey);
+                        fileReceiver = new FileReceiver(srcConnection,10000, size, true);
+                        fileReceiver.start();
+                    } catch (IllegalBlockSizeException e) {
+                        e.printStackTrace();
+                        return;
+                    }
+
+                } else {
+                    fileReceiver = new FileReceiver(srcConnection,10000, size, false);
+                    fileReceiver.start();
+                }
             } else {
-                fileResponse = new FileResponse(replyString, reply);
+                fileResponse = new FileResponse(replyString, false);
                 srcConnection.sendMessage(fileResponse);
             }
 

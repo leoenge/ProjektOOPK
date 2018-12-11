@@ -21,10 +21,10 @@ import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class View implements ActionListener, ItemListener {
     private Model model;
-    public JFrame frame;
+    private JFrame frame;
     private ControlPanel controlPanel;
     private ChatPanel chatPanel;
-    private SendPanel sendPanel;
+    SendPanel sendPanel;
 
     public static View init_view(Model modelIn) {
         View view = new View(modelIn);
@@ -204,7 +204,21 @@ public class View implements ActionListener, ItemListener {
                     connectionArr, null);
             Connection connection = connections.get(connIndex);
             Controller.getInstance().sendFile(connection);
-        } else if (srcButton == sendPanel.sendEncryptedButton) {
+        } else if (srcButton == sendPanel.sendEncryptedFileButton) {
+            ArrayList<Connection> connections = model.getActiveChat().getConnections();
+            Object[] connectionArr = new Object[connections.size()];
+            for (int i = 0; i < connections.size(); i++) {
+                connectionArr[i] = connections.get(i);
+            }
+            int connIndex = JOptionPane.showOptionDialog(null, "Choose a connection",
+                    "connection choice", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                    connectionArr, null);
+            Connection connection = connections.get(connIndex);
+
+            Controller.getInstance().sendEncryptedFile(connection);
+        }
+
+        else if (srcButton == sendPanel.sendEncryptedButton) {
             Controller.getInstance().sendEncryptedMessage(sendPanel.messageTextPane.getText());
         }
     }

@@ -7,6 +7,7 @@ import jdk.nashorn.internal.scripts.JO;
 //import Model.*;
 
 import javax.swing.*;
+import javax.xml.bind.DatatypeConverter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -218,5 +219,29 @@ public class Controller {
         FileRequest fileRequest = new FileRequest(messageStr, model.getActiveChat().getSettings().userName, name, size);
         connection.sendMessage(fileRequest);
         connection.waitingForFileResponse = true;
+    }
+
+    public void sendEncryptedFile(Connection connection) {
+        File file = view.requestFile();
+        if (file == null) {
+            return;
+        }
+
+        if (!connection.supportsAES()) {
+            view.displayMessage("Other side does not support encryption");
+        }
+
+        long size = file.length();
+        String name = file.getName();
+
+        String messageStr = view.requestString("Include a message in file request");
+
+        String keyString = DatatypeConverter.printHexBinary(connection.AESEncryption.getLocalKey().getEncoded());
+
+        connection.fileRequestHandler = new FileRequestHandler(file, connection, true);
+        FileRequest fileRequest = new FileRequest(messageStr, model.getActiveChat().getSettings().userName,
+                name, size, "aes", keyString);
+
+        connection.sendMessage(fileRequest);
     }
 }

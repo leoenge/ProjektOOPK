@@ -1,8 +1,5 @@
 package Model;
 
-import com.sun.crypto.provider.AESKeyGenerator;
-import com.sun.xml.internal.bind.api.impl.NameConverter;
-
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
@@ -45,8 +42,8 @@ public class AESEncryption {
         remoteKey = new SecretKeySpec(rawKey, "AES");
     }
 
-    SecretKeySpec getRemoteKey() { return remoteKey; }
-    SecretKeySpec getLocalKey() { return localKey; }
+    public SecretKeySpec getRemoteKey() { return remoteKey; }
+    public SecretKeySpec getLocalKey() { return localKey; }
     String getLocalKeyHex() throws KeyException{
         if (localKey == null) {
             throw new KeyException("No local key initialized");
@@ -88,6 +85,35 @@ public class AESEncryption {
         return DatatypeConverter.printHexBinary(encryptedData);
     }
 
+    public byte[] encrypt(byte[] rawData) throws KeyException, IllegalArgumentException {
+        if (localKey == null) {
+            throw new KeyException("No local key set.");
+        }
+
+        try {
+            cipher = Cipher.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Something went wrong when initializing cipher.");
+        } catch (NoSuchPaddingException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Something went wrong when making padding for AES.");
+        }
+
+        cipher.init(Cipher.ENCRYPT_MODE, localKey);
+        byte[] encrypted;
+        try {
+            encrypted = cipher.doFinal(rawData);
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid block size");
+        } catch (BadPaddingException e) {
+            throw new IllegalArgumentException("Padding error in AES");
+        }
+
+        return encrypted;
+    }
+
     public String decrypt(String message) throws KeyException, IllegalArgumentException {
         if (remoteKey == null) {
             throw new KeyException("No remote key set");
@@ -118,5 +144,34 @@ public class AESEncryption {
         }
 
         return new String(decryptedData, StandardCharsets.UTF_8);
+    }
+
+    public byte[] decrypt(byte[] rawData) throws KeyException, IllegalArgumentException {
+        if (remoteKey == null) {
+            throw new KeyException("No remote key set.");
+        }
+
+        try {
+            cipher = Cipher.getInstance("AES");
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Something went wrong when initializing cipher.");
+        } catch (NoSuchPaddingException e) {
+            System.err.println(e.getStackTrace());
+            throw new IllegalArgumentException("Something went wrong when making padding for AES.");
+        }
+
+        cipher.init(Cipher.DECRYPT_MODE, remoteKey);
+        byte[] decrypted;
+        try {
+            decrypted = cipher.doFinal(rawData);
+        } catch (IllegalBlockSizeException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid block size");
+        } catch (BadPaddingException e) {
+            throw new IllegalArgumentException("Padding error in AES");
+        }
+
+        return decrypted;
     }
 }

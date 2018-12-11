@@ -22,8 +22,15 @@ public class KeyResponse extends Message {
         if (escapeChars) {
             this.escapeChars();
         }
-        String res = "<message><encryption key=\"" +
-                DatatypeConverter.printHexBinary(rawKey) + "\" type=\"" + type + "\"></encryption></message>";
+
+        String res = "";
+        if (type.toLowerCase().equals("aes")) {
+            res = "<message><encrypted key=\"" +
+                    DatatypeConverter.printHexBinary(rawKey) + "\" type=\"" + type + "\"></encrypted></message>";
+        } else if (type.toLowerCase().equals("caesar")) {
+            res = "<message><encrypted key=\"" +
+                    caesarKey + "\" type=\"" + type + "\"></encrypted></message>";
+        }
 
         return res;
     }

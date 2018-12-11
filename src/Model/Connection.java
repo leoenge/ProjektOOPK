@@ -20,10 +20,10 @@ import java.util.Observable;
 public class Connection extends Observable implements Runnable {
     public FileRequestHandler fileRequestHandler;
     public boolean waitingForFileResponse;
+    public AESEncryption AESEncryption = new AESEncryption();
+    public CaesarEncryption caesarEncryption = new CaesarEncryption();
     PrintWriter socketWriter;
     BufferedReader socketReader;
-    AESEncryption AESEncryption = new AESEncryption();
-    CaesarEncryption caesarEncryption = new CaesarEncryption();
     private Chat chat;
     private Socket socket;
     private boolean supportsAES;
