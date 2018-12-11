@@ -48,6 +48,7 @@ public class Connection extends Observable implements Runnable {
     }
 
     public void sendMessage(Message message) {
+        System.err.println(message.toXML(true));
         socketWriter.println(message.toXML(true));
     }
     void sendEncryptedMessage(Message message) {
