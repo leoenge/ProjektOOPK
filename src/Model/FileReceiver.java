@@ -1,5 +1,7 @@
 package Model;
 
+import Controller.Controller;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -101,6 +103,7 @@ public class FileReceiver extends Thread{
         try {
             fileOutputStream.close();
             socket.close();
+            Controller.getInstance().view.displayMessage("File received");
         } catch (IOException e) {
             e.printStackTrace();
             return;

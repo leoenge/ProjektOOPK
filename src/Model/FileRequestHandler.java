@@ -1,5 +1,7 @@
 package Model;
 
+import Controller.Controller;
+
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
@@ -108,6 +110,7 @@ public class FileRequestHandler extends Thread {
                 });
             }
 
+            Controller.getInstance().view.displayMessage("File sending complete");
             frame.dispose();
             socket.close();
         } catch (IOException e) {
