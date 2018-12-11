@@ -82,10 +82,6 @@ public class FileReceiver extends Thread{
             return;
         }
 
-        for (byte b: buffer) {
-            System.err.println(b);
-        }
-
         if (encrypted) {
             try {
                 srcConnection.AESEncryption.decrypt(buffer);

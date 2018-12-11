@@ -30,7 +30,7 @@ public class FileResponse extends Message {
         } else {
             res += "<message>";
         }
-        res += "<fileresponse reply=\"" + replyString + "\" port=\"" + port + "\"></fileresponse></message>";
+        res += "<fileresponse reply=\"" + replyString + "\" port=\"" + port + "\">" + message + "</fileresponse></message>";
         return res;
 
     }

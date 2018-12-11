@@ -15,8 +15,6 @@ import java.security.KeyException;
 import java.util.ArrayList;
 import java.util.Observable;
 
-//TODO: Fixa felhantering om något går fel med inkommande meddelanden. Trådsäkerhet!
-
 public class Connection extends Observable implements Runnable {
     public FileRequestHandler fileRequestHandler;
     public boolean waitingForFileResponse;
@@ -208,8 +206,8 @@ public class Connection extends Observable implements Runnable {
                         clearChanged();
                     }
                 } catch (XMLParseException e) {
-                    //TODO:Notifiera användaren att konstigt XML-meddelande kommit in.
                     e.printStackTrace();
+                    chat.model.view.displayMessage("Malformatted XML-message received");
                 }
             }
             //If we got here with no disconnect message, the remote connection was closed without the
