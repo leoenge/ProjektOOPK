@@ -28,6 +28,10 @@ public class FileReceiver extends Thread{
         }
     }
 
+    /**
+     * Creates a server socket to listen for connections and handles the reception of a file over the
+     * sockets inputstream.
+     */
     public void run() {
         try {
             socket = serverSocket.accept();

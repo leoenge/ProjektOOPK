@@ -36,7 +36,11 @@ public class Controller {
     public View view;
     private Model model;
 
-    //Returns the chat to connect the new connection to or null if user doesn't want to establish the connection
+    /**
+     * Queries the user when a new connection is received if the connection is to be allowed or not.
+     * @param request The request message from the new connection, can be null.
+     * @return The users response, true if allowed, false otherwise.
+     */
     public boolean askUser(Request request) {
         int answer;
         if (request != null) {
@@ -48,10 +52,6 @@ public class Controller {
                     "client", "New connection attempt", JOptionPane.YES_NO_OPTION);
         }
         return answer == JOptionPane.YES_OPTION;
-    }
-
-    public void askUserFileRequest() {
-
     }
 
     public void establishServerPort() {
@@ -77,6 +77,10 @@ public class Controller {
         model.createConnectionReceiver(portNumber);
     }
 
+    /**
+     * Sends an encrypted text message to the currently active chat from the content specified in msText.
+     * @param msText The text conetnt of the message.
+     */
     public void sendEncryptedMessage(String msText) {
         Chat activeChat = model.getActiveChat();
         if (activeChat.getSettings().encryptionType == null) {
@@ -107,6 +111,10 @@ public class Controller {
         activeChat.sendEncryptedMessage(message);
     }
 
+    /**
+     * Sends an unecncrypted text message to the currently active chat.
+     * @param msText The text content of the message.
+     */
     public void sendMessage(String msText) {
         Chat activeChat = model.getActiveChat();
 
@@ -122,6 +130,9 @@ public class Controller {
         activeChat.sendTextMessage(message);
     }
 
+    /**
+     * Lets the user select an IP-address/hostname and port to connect to with a request.
+     */
     public void requestConnection() {
         String IPstr = view.requestString("Which IP address/hostname do you want to connect to?");
         int port = view.requestNumber("What port do you want to connect to?", 0, 65535);
@@ -149,6 +160,10 @@ public class Controller {
 
     }
 
+    /**
+     * Makes the currently active chat into a multi part chat. Lets the user select a port to listen to new
+     * connections to this chat on.
+     */
     public void makeMultiPart() {
         Chat chat = model.getActiveChat();
         //Check that there are chats.
@@ -163,6 +178,9 @@ public class Controller {
         }
     }
 
+    /**
+     * Lets the user update the setting for the currently active chat.
+     */
     public void updateSettings() {
         Chat activeChat = model.getActiveChat();
         if (activeChat == null) {
@@ -190,22 +208,38 @@ public class Controller {
         }
     }
 
+    /**
+     * Closes down the currently active chat and disconnects from the hosts connected.
+     */
     public void closeActiveChat() {
         Chat chat = model.getActiveChat();
         model.closeChat(chat);
     }
 
+    /**
+     * Closes down a specific connection in a chat.
+     * @param connection The connection to close.
+     */
     public void closeConnection(Connection connection) {
         connection.closeSocket();
         model.getActiveChat().closeConnection(connection);
     }
 
+    /**
+     * Changes the currently active chat-
+     * @param chat The chat to make the new active chat.
+     */
     public void changeActiveChat(Chat chat) {
         model.setActiveChat(chat);
 
         view.updateWindows(model.getActiveChat().getMessageHistory());
     }
 
+    /**
+     * Handles the sending of a file by letting the user select a file of a GUI, sending the
+     * file request to the remote host and sending the file if the request is accepted.
+     * @param connection
+     */
     public void sendFile(Connection connection) {
         File file = view.requestFile();
         if (file == null) {
@@ -220,6 +254,11 @@ public class Controller {
         connection.sendMessage(fileRequest);
         connection.waitingForFileResponse = true;
     }
+
+    /**
+     * Handles sending a file but with its data encrypted using AES.
+     * @param connection The connection to send the file on.
+     */
 
     public void sendEncryptedFile(Connection connection) {
         File file = view.requestFile();

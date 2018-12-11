@@ -47,10 +47,30 @@ public class Connection extends Observable implements Runnable {
         socketReader = new BufferedReader(new InputStreamReader(socketInStream));
     }
 
+
+    /**
+     * Sends an XML representation of the message over the socket.
+     * @param message Message to send.
+     */
     public void sendMessage(Message message) {
         System.err.println("Outgoing: " + message.toXML(true));
         socketWriter.println(message.toXML(true));
     }
+
+    /**
+     * @return True if the other host has been detected to support AES.
+     */
+    public boolean supportsAES() { return supportsAES; }
+
+    /**
+     * @return True if the other host has been detected to support caesar.
+     */
+    public boolean supportsCaesar() { return supportsCaesar; }
+
+    /**
+     * Sends an encrypted version of the Message as XML over the socket.
+     * @param message Message to encrypt and send.
+     */
     void sendEncryptedMessage(Message message) {
         //Escape xml-syntax in the text body before encryption.
         message.escapeChars();
@@ -85,24 +105,18 @@ public class Connection extends Observable implements Runnable {
             message.addEncryptionTags(keyStr, "caesar");
             socketWriter.println(message.toXML(false));
         }
-
-
     }
-    void sendNewKeyRequest(String type, String message) throws IllegalStateException {
-        KeyRequest keyRequest = new KeyRequest(type, message);
-        sendMessage(keyRequest);
-    }
-    public boolean supportsAES() { return supportsAES; }
-    public boolean supportsCaesar() { return supportsCaesar; }
 
+    /**
+     * @return The internet address of the other host connected to the socket.
+     */
     public InetAddress getRemoteAddress() {
         return socket.getInetAddress();
     }
 
-    void setChat(Chat chat) {
-        this.chat = chat;
-    }
-
+    /**
+     * Sends a disconnect message to the other host and closes the socket.
+     */
     public void closeSocket() {
         socketWriter.println(new DisconnectMessage(chat.getSettings().userName).toXML(true));
         try {
@@ -110,6 +124,20 @@ public class Connection extends Observable implements Runnable {
         } catch (IOException e) {
             System.err.println("Something went wrong when interrupting the socket");
         }
+    }
+    /**
+     * Sends a Key request over the socket
+     * @param type The type of encryption to request key for, e.g. "AES", "caesar".
+     * @param message Text message to include in the request
+     * @throws IllegalStateException
+     */
+    void sendNewKeyRequest(String type, String message) throws IllegalStateException {
+        KeyRequest keyRequest = new KeyRequest(type, message);
+        sendMessage(keyRequest);
+    }
+
+    void setChat(Chat chat) {
+        this.chat = chat;
     }
 
     @Override
@@ -132,6 +160,9 @@ public class Connection extends Observable implements Runnable {
             sendNewKeyRequest("caesar", "");
 
             while ((inputLine = socketReader.readLine()) != null) {
+                if (waitingForFileResponse && fileRequestHandler.timeElapsed() > 60000) {
+                    fileRequestHandler = null;
+                }
                 //Create inputstream from bufferedreader.
                 InputStream is = new ByteArrayInputStream(inputLine.getBytes(Charset.defaultCharset()));
                 //Parse xml-message and create a Message instance.

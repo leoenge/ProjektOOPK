@@ -159,8 +159,11 @@ public class View implements ActionListener, ItemListener {
         sendPanel.messageTextPane.setText("");
     }
 
-    //Funderar på att sätta lyssnaren på knapparna i View istället för i Controller så att controller inte behöver känna till
-    //Vilka knappar som finns i View.
+    /**
+     * Called when one of the buttons attached to the frame of this view are pressed.
+     * Calls methods in controller corresponding to the pressed buttons.
+     * @param e The actionevent from the button.
+     */
     public void actionPerformed(ActionEvent e) {
         JButton srcButton = null;
         JComboBox srcBox = null;
@@ -223,6 +226,11 @@ public class View implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * Called when an item is selected from a JComboBox. Changes the active chat
+     * to the one selected in the JComboBox.
+     * @param e The action event.
+     */
     public void itemStateChanged(ItemEvent e) {
         if (e.getStateChange() == ItemEvent.SELECTED) {
             Chat selectedChat = (Chat) e.getItem();
@@ -230,10 +238,18 @@ public class View implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * Adds a new chat to the JComboBox containing the chats we currently have.
+     * @param chat The new chat.
+     */
     public void updateActiveChatBox(Chat chat) {
         controlPanel.chooseChatBox.addItem(chat);
     }
 
+    /**
+     * Displays a system message on the message panel.
+     * @param text The text to display.
+     */
     public void displayMessage(String text) {
         StyledDocument doc = chatPanel.messageHistoryPane.getStyledDocument();
         try {
@@ -243,6 +259,11 @@ public class View implements ActionListener, ItemListener {
         }
     }
 
+    /**
+     * Removes a chat from this view by clearing it from the Combo Box with the chats and clearing the
+     * text panes.
+     * @param chat The chat to remove.
+     */
     public void removeChat(Chat chat) {
         //Remove the chat from the choicebox
         controlPanel.chooseChatBox.removeItem(chat);

@@ -5,10 +5,22 @@ import java.util.Random;
 public class CaesarEncryption {
     private static final int keySize = 26;
 
+    /**
+     * Encrypts the message using caesar encryption.
+     * @param message Message to encrypt
+     * @param key Key to use
+     * @return The encrypted message.
+     */
     public String encrypt(String message, int key) {
         return encrypt(message, key, false);
     }
 
+    /**
+     * Decrypts the message using caesar encryption.
+     * @param message Message to decrypt.
+     * @param key key to use.
+     * @return
+     */
     public String decrypt(String message, int key) {
         return encrypt(message, key,true);
     }

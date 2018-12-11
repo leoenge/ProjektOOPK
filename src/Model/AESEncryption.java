@@ -21,6 +21,9 @@ public class AESEncryption {
     AESEncryption() {
     }
 
+    /**
+     * Generates a new random 128-bit AES key, and stores it in the localKey attribute.
+     */
     public void generateKey() {
         KeyGenerator AESKeyGen;
         try {
@@ -33,6 +36,11 @@ public class AESEncryption {
         localKey = (SecretKeySpec) AESKeyGen.generateKey();
     }
 
+    /**
+     * Sets the remote key to a new value
+     * @param rawKey The raw byte value of the new key
+     * @throws IllegalBlockSizeException If the key size is not 128-bit or 192-bit or 256-bit.
+     */
     void setKey(byte[] rawKey) throws IllegalBlockSizeException{
         //AES keys need to be 128/192/256 bits long.
         if (!((rawKey.length == 16) || (rawKey.length == 24) || (rawKey.length == 32))) {
@@ -44,6 +52,12 @@ public class AESEncryption {
 
     public SecretKeySpec getRemoteKey() { return remoteKey; }
     public SecretKeySpec getLocalKey() { return localKey; }
+
+    /**
+     * Gets a hex string representation of the local 128-bit AES key.
+     * @return A hex string of the key
+     * @throws KeyException When there is no local key initialized.
+     */
     String getLocalKeyHex() throws KeyException{
         if (localKey == null) {
             throw new KeyException("No local key initialized");
@@ -51,6 +65,13 @@ public class AESEncryption {
         byte[] rawKey = localKey.getEncoded();
         return DatatypeConverter.printHexBinary(rawKey);
     }
+
+    /**
+     * Encrypts the message using AES, and the localKey attribute as key.
+     * @param message Message to encrypt.
+     * @return Encrypted message as hex string.
+     * @throws KeyException If the local key has not been initialized.
+     */
 
     public String encrypt(String message) throws KeyException {
         if (localKey == null) {
@@ -85,6 +106,14 @@ public class AESEncryption {
         return DatatypeConverter.printHexBinary(encryptedData);
     }
 
+    /**
+     * Encrypts some raw byte data using AES with localKey attribute as key.
+     * @param rawData The raw byte array to encrypt
+     * @return The encrypted data as byte array.
+     * @throws KeyException If there is no local key initialized
+     * @throws IllegalArgumentException
+     */
+
     public byte[] encrypt(byte[] rawData) throws KeyException, IllegalArgumentException {
         if (localKey == null) {
             throw new KeyException("No local key set.");
@@ -114,6 +143,13 @@ public class AESEncryption {
         return encrypted;
     }
 
+    /**
+     * Decrypts a hex string using AES with remoteKey as key and returns the decrypted data encoded in UTF-8 as a String.
+     * @param message
+     * @return String containing UTF-8 decoding of the decrypted data
+     * @throws KeyException If the remote key is not initialized.
+     * @throws IllegalArgumentException
+     */
     public String decrypt(String message) throws KeyException, IllegalArgumentException {
         if (remoteKey == null) {
             throw new KeyException("No remote key set");
@@ -146,6 +182,13 @@ public class AESEncryption {
         return new String(decryptedData, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Decrypts the data in a raw byte array using AES with remoteKey as key.
+     * @param rawData The byte array to decrypt.
+     * @return The decrypted data as a byte array.
+     * @throws KeyException If the remote key is not initialized.
+     * @throws IllegalArgumentException
+     */
     public byte[] decrypt(byte[] rawData) throws KeyException, IllegalArgumentException {
         if (remoteKey == null) {
             throw new KeyException("No remote key set.");

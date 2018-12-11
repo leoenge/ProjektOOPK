@@ -22,6 +22,9 @@ public class FileRequestHandler extends Thread {
         this.file = file;
     }
 
+    /**
+     * @return The time elapsed since this request handler was created.
+     */
     long timeElapsed() {
         return System.currentTimeMillis() - startTime;
     }

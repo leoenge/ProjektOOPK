@@ -2,6 +2,9 @@ package Model;
 
 import java.awt.*;
 
+/**
+ * Represents a text message used in a chat client.
+ */
 public class TextMessage extends Message {
     //24 bit bitmask.
     static final int bitMask24 = 0xffffff;
@@ -50,6 +53,11 @@ public class TextMessage extends Message {
         return res;
     }
 
+    /**
+     * Converts the text message to an XML representation.
+     * @param escapeChars true if we want to escape XML-characters in the user inputted text.
+     * @return
+     */
     @Override
     public String toXML(boolean escapeChars) {
         if (escapeChars) {

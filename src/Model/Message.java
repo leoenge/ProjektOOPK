@@ -1,5 +1,10 @@
 package Model;
 
+/**
+ * Abstract class for representing different types of messages as XML.
+ * Requires subclasses to implement a toXML method to convert the message to an
+ * XML representation.
+ */
 public abstract class Message  {
     public String message = null;
     public String senderName;

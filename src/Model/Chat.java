@@ -39,10 +39,13 @@ public class Chat implements Observer {
     }
     public ArrayList<Connection> getConnections() { return this.connections; }
 
-    void receiveMessage(Message message, Connection srcConnection){
-        System.err.println("Message to ReceiveMessage" + message.toXML(true));
-        System.err.println("Is textMessage " + (message instanceof TextMessage));
-        System.err.println("Is file Request " + (message instanceof KeyRequest));
+    /**
+     * Handles receiving of different message types. For textMessages, adds message to history and forwards messages
+     * to other connections, for FileRequests, creates file response. For key request creates key response.
+     * @param message message to receive
+     * @param srcConnection connection which the message was received on.
+     */
+    void receiveMessage(Message message, Connection srcConnection) {
         if (message instanceof TextMessage) {
             messages.add((TextMessage) message);
             //Check if we have multipart conversation
@@ -56,7 +59,6 @@ public class Chat implements Observer {
             }
         } else if (message instanceof KeyRequest) {
             KeyRequest keyRequest = (KeyRequest) message;
-            System.err.println("Incoming key request type:"  + keyRequest.type.toLowerCase());
             if (keyRequest.type.toLowerCase().equals("aes")) {
                 srcConnection.AESEncryption.generateKey();
                 byte[] rawKey = srcConnection.AESEncryption.getLocalKey().getEncoded();
@@ -111,10 +113,21 @@ public class Chat implements Observer {
         //TODO: Add support for other message types.
     }
 
+
+    /**
+     * Adds a connection to this chats connection list
+     * @param connection connection to add
+     */
     void addConnection(Connection connection) {
         connections.add(connection);
     }
 
+
+    /**
+     * Closes a connection by removing it from connections list, if it is the last connection of this chat
+     * remove the chat.
+     * @param connection connection to close
+     */
     public void closeConnection(Connection connection) {
         connections.remove(connection);
 
@@ -134,7 +147,11 @@ public class Chat implements Observer {
         return "Chat " + (index + 1);
     }
 
-    //Called when a connection receives a new message from the socket.
+    /**
+     * Observer function notified by the connections when messages are received.
+     * @param connection Connection that the message was received on
+     * @param newMessage The received message
+     */
     public void update(Observable connection, Object newMessage) {
         if (newMessage instanceof DisconnectMessage) {
             //Close the connection, clears view and removes the chat if this was the last connection
@@ -148,6 +165,11 @@ public class Chat implements Observer {
         }
     }
 
+    /**
+     * Sends a text message to all connections.
+     * @param textMessage Text message to send
+     */
+
     public void sendTextMessage(TextMessage textMessage) {
         this.messages.add(textMessage);
         for (Connection connection:connections) {
@@ -155,6 +177,10 @@ public class Chat implements Observer {
         }
     }
 
+    /**
+     * Sends an encrypted text message to all connections.
+     * @param textMessage Text message to send.
+     */
     public void sendEncryptedMessage(TextMessage textMessage) {
         this.messages.add(textMessage);
         TextMessage originalMessage;
@@ -163,5 +189,4 @@ public class Chat implements Observer {
             connection.sendEncryptedMessage(new TextMessage(textMessage));
         }
     }
-    public void sendFile(){}
 }
