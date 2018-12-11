@@ -100,7 +100,7 @@ public class Connection extends Observable implements Runnable {
         this.chat = chat;
     }
 
-    void closeSocket() {
+    public void closeSocket() {
         socketWriter.println(new DisconnectMessage(chat.getSettings().userName).toXML(true));
         try {
             socket.close();

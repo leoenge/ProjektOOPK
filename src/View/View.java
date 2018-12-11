@@ -162,7 +162,16 @@ public class View implements ActionListener, ItemListener {
         } else if (srcButton == controlPanel.closeChatButton) {
             Controller.getInstance().closeActiveChat();
         } else if (srcButton == controlPanel.closeConnectionButton) {
-            Controller.getInstance().closeConnection();
+            ArrayList<Connection> connections = model.getActiveChat().getConnections();
+            Object[] connectionArr = new Object[connections.size()];
+            for (int i = 0; i < connections.size(); i++) {
+                connectionArr[i] = connections.get(i);
+            }
+            int connIndex = JOptionPane.showOptionDialog(null, "Choose a connection",
+                    "connection choice", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                    connectionArr, null);
+            Connection connection = connections.get(connIndex);
+            Controller.getInstance().closeConnection(connection);
         } else if (srcButton == controlPanel.createMultiPartButton) {
             Controller.getInstance().makeMultiPart();
         } else if (srcButton == sendPanel.sendButton) {

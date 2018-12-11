@@ -73,7 +73,7 @@ public class Chat implements Observer {
         connections.add(connection);
     }
 
-    void closeConnection(Connection connection) {
+    public void closeConnection(Connection connection) {
         connections.remove(connection);
 
         if (connections.isEmpty()) {

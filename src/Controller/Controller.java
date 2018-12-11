@@ -115,10 +115,9 @@ public class Controller {
 
         TextMessage message =
                 new TextMessage(msText, activeChat.getSettings().getFontColor(), activeChat.getSettings().getUserName());
-
-        activeChat.sendTextMessage(message);
         //Updates the text box with the message history.
         view.updateView(message);
+        activeChat.sendTextMessage(message);
     }
 
     public void requestConnection() {
@@ -194,8 +193,9 @@ public class Controller {
         model.closeChat(chat);
     }
 
-    public void closeConnection() {
-
+    public void closeConnection(Connection connection) {
+        connection.closeSocket();
+        model.getActiveChat().closeConnection(connection);
     }
 
     public void changeActiveChat(Chat chat) {
