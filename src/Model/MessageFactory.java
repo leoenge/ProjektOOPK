@@ -111,7 +111,6 @@ public class MessageFactory {
         }
 
         TextMessage textMessage = new TextMessage(text, color, username);
-        textMessage.unEscapeChars();
 
         return textMessage;
     }
