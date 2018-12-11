@@ -121,7 +121,6 @@ public class MessageFactory {
         String userText = fileRequestElement.getTextContent();
         String AESKey = null;
         String type = "";
-        int caesarKey = 0;
         int fileSize;
 
         try {
@@ -135,17 +134,12 @@ public class MessageFactory {
             if (fileRequestElement.getAttribute("type").toUpperCase().equals("AES")) {
                 type = "AES";
                 AESKey = fileRequestElement.getAttribute("key");
-            } else if (fileRequestElement.getAttribute("type").equals("caesar")) {
-                try {
-                    caesarKey = Integer.parseInt(fileRequestElement.getAttribute("key"));
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                    throw new XMLParseException("Invalid file request received: caesar key not an integer.");
-                }
+            } else {
+                throw new XMLParseException("Encryption type not supported for files.");
             }
         }
 
-        return new FileRequest(userText, username, fileName, fileSize, type, AESKey, caesarKey);
+        return new FileRequest(userText, username, fileName, fileSize, type, AESKey);
     }
 
     private static KeyResponse createKeyResponse(Element keyResponseElement) throws XMLParseException{
@@ -177,11 +171,10 @@ public class MessageFactory {
     }
 
     private static FileResponse createFileResponse(Element fileResponseElement) throws XMLParseException {
+        String message = fileResponseElement.getTextContent();
         String replyString;
         boolean reply;
         int portNumber;
-        String key;
-        int caesarKey = 0;
 
         //Check for the required tags.
         if (fileResponseElement.hasAttribute("reply") && fileResponseElement.hasAttribute("port")) {
@@ -205,9 +198,7 @@ public class MessageFactory {
             throw new XMLParseException("Invalid file response received: required attributes missing.");
         }
 
-        key = fileResponseElement.getAttribute("key");
-
-        return new FileResponse(reply, portNumber, key, caesarKey);
+        return new FileResponse(message, reply, portNumber);
 
     }
 

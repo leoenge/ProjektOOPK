@@ -2,25 +2,48 @@ package Model;
 
 public class FileRequest extends Message {
     public String fileName;
-    public int size;
-    public String type;
-    public String AESKey;
-    public int caesarKey;
+    public long size;
+    public String type = null;
+    public String AESKey = null;
 
-    FileRequest(String message, String senderName,
-                String fileName, int size, String type, String AESKey, int caesarKey) {
+    public FileRequest(String message, String senderName,
+                String fileName, long size, String type, String AESKey) {
         this.senderName = senderName;
         this.message = message;
         this.fileName = fileName;
         this.size = size;
         this.AESKey = AESKey;
-        this.caesarKey = caesarKey;
         this.type = type;
-
     }
 
+    public FileRequest(String message, String senderName,
+                String fileName, long size) {
+        this.senderName = senderName;
+        this.message = message;
+        this.fileName = fileName;
+        this.size = size;
+    }
     @Override
     public String toXML(boolean escapeChars) {
-        return null;
+        if (escapeChars) {
+            this.escapeChars();
+        }
+        String res = "";
+
+        if (this.senderName == null) {
+            res += "<message>";
+        } else {
+            res += "<message sender=\"" + this.senderName + "\">";
+        }
+
+        if (this.AESKey == null) {
+            res += "<filerequest name=\"" + this.fileName + "\" size=\"" + size + "\">";
+        } else {
+            res += "<filerequest name=\"" + this.fileName + "\" size=\"" + size + "\" " +
+                    "type=\"" + this.type + "\" key=\"" + AESKey + "\">";
+        }
+
+        res += message + "</filerequest></message>";
+        return res;
     }
 }

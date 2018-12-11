@@ -13,7 +13,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.CancellationException;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -91,6 +93,21 @@ public class View implements ActionListener, ItemListener {
         }
 
         return res;
+    }
+
+    public File requestFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int returnVal = fileChooser.showOpenDialog(null);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        } else {
+            return null;
+        }
+    }
+
+    public boolean yesNoRequest(String message) {
+        int choice = JOptionPane.showConfirmDialog(null, message, "Choose", JOptionPane.YES_NO_OPTION);
+        return (choice == JOptionPane.YES_OPTION);
     }
 
     public void updateView(Message message) {
@@ -177,7 +194,16 @@ public class View implements ActionListener, ItemListener {
         } else if (srcButton == sendPanel.sendButton) {
             Controller.getInstance().sendMessage(sendPanel.messageTextPane.getText());
         } else if (srcButton == sendPanel.fileButton) {
-            Controller.getInstance().sendFile();
+            ArrayList<Connection> connections = model.getActiveChat().getConnections();
+            Object[] connectionArr = new Object[connections.size()];
+            for (int i = 0; i < connections.size(); i++) {
+                connectionArr[i] = connections.get(i);
+            }
+            int connIndex = JOptionPane.showOptionDialog(null, "Choose a connection",
+                    "connection choice", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+                    connectionArr, null);
+            Connection connection = connections.get(connIndex);
+            Controller.getInstance().sendFile(connection);
         } else if (srcButton == sendPanel.sendEncryptedButton) {
             Controller.getInstance().sendEncryptedMessage(sendPanel.messageTextPane.getText());
         }

@@ -18,12 +18,14 @@ import java.util.Observable;
 //TODO: Fixa felhantering om något går fel med inkommande meddelanden. Trådsäkerhet!
 
 public class Connection extends Observable implements Runnable {
-    private Chat chat;
-    private Socket socket;
+    public FileRequestHandler fileRequestHandler;
+    public boolean waitingForFileResponse;
     PrintWriter socketWriter;
     BufferedReader socketReader;
     AESEncryption AESEncryption = new AESEncryption();
     CaesarEncryption caesarEncryption = new CaesarEncryption();
+    private Chat chat;
+    private Socket socket;
     private boolean supportsAES;
     private boolean supportsCaesar;
 
@@ -89,8 +91,8 @@ public class Connection extends Observable implements Runnable {
         KeyRequest keyRequest = new KeyRequest(type, message);
         sendMessage(keyRequest);
     }
-    public boolean supportsAES() { return AESEncryption != null; }
-    public boolean supportsCaesar() { return caesarEncryption != null; }
+    public boolean supportsAES() { return supportsAES; }
+    public boolean supportsCaesar() { return supportsCaesar; }
 
     public InetAddress getRemoteAddress() {
         return socket.getInetAddress();
@@ -150,6 +152,17 @@ public class Connection extends Observable implements Runnable {
                             else if (((KeyResponse) incMessage).type.toLowerCase().equals("caesar")) {
                                 supportsCaesar = true;
                                 continue;
+                            }
+                        }
+
+                        if (incMessage instanceof FileResponse) {
+                            if (waitingForFileResponse) {
+                                waitingForFileResponse = false;
+                                if (fileRequestHandler.timeElapsed() < 60000) {
+                                    fileRequestHandler.port = ((FileResponse) incMessage).port;
+                                    fileRequestHandler.start();
+                                    fileRequestHandler = null;
+                                }
                             }
                         }
                         //Notifies chat that message has been received, so that view can be updated etc.

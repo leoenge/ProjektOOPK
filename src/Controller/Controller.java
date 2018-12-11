@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -90,7 +91,7 @@ public class Controller {
                     return;
                 }
             } else if (activeChat.getSettings().encryptionType.equals("caesar")) {
-                if (!connection.supportsAES()) {
+                if (!connection.supportsCaesar()) {
                     view.displayMessage("Not all other users support the selected type of encryption.");
                     return;
                 }
@@ -204,7 +205,18 @@ public class Controller {
         view.updateWindows(model.getActiveChat().getMessageHistory());
     }
 
-    public void sendFile() {
+    public void sendFile(Connection connection) {
+        File file = view.requestFile();
+        if (file == null) {
+            return;
+        }
+        long size = file.length();
+        String name = file.getName();
 
+        String messageStr = view.requestString("Include a message in file request.");
+        connection.fileRequestHandler = new FileRequestHandler(file, connection, false);
+        FileRequest fileRequest = new FileRequest(messageStr, model.getActiveChat().getSettings().userName, name, size);
+        connection.sendMessage(fileRequest);
+        connection.waitingForFileResponse = true;
     }
 }
