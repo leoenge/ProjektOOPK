@@ -190,11 +190,15 @@ public class Connection extends Observable implements Runnable {
 
                         if (incMessage instanceof FileResponse) {
                             if (waitingForFileResponse) {
-                                waitingForFileResponse = false;
-                                if (fileRequestHandler.timeElapsed() < 60000) {
-                                    fileRequestHandler.port = ((FileResponse) incMessage).port;
-                                    fileRequestHandler.start();
-                                    fileRequestHandler = null;
+                                chat.model.view.displayMessage("File response with message: " +
+                                        ((FileResponse) incMessage).message + "received.");
+                                if (((FileResponse) incMessage).reply) {
+                                    waitingForFileResponse = false;
+                                    if (fileRequestHandler.timeElapsed() < 60000) {
+                                        fileRequestHandler.port = ((FileResponse) incMessage).port;
+                                        fileRequestHandler.start();
+                                        fileRequestHandler = null;
+                                    }
                                 }
                             }
                         }

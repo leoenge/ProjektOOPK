@@ -104,6 +104,7 @@ public class FileReceiver extends Thread{
 
         try {
             fileOutputStream.close();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
             return;

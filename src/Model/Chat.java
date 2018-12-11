@@ -78,9 +78,9 @@ public class Chat implements Observer {
             String replyString = model.view.requestString("Input an answer message here");
 
             FileResponse fileResponse;
-            fileResponse = new FileResponse(replyString, true, 10000);
-            srcConnection.sendMessage(fileResponse);
             if (reply) {
+                fileResponse = new FileResponse(replyString, true, 10000);
+                srcConnection.sendMessage(fileResponse);
                 FileReceiver fileReceiver;
                 if (((FileRequest) message).AESKey != null) {
                     byte[] rawKey = DatatypeConverter.parseHexBinary(((FileRequest) message).AESKey);
@@ -102,7 +102,6 @@ public class Chat implements Observer {
                 fileResponse = new FileResponse(replyString, false);
                 srcConnection.sendMessage(fileResponse);
             }
-
         }
 
         //If this is the currently active chat, we display the message in the message panel.
