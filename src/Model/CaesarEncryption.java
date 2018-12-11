@@ -30,6 +30,8 @@ public class CaesarEncryption {
                 codePoint = (char) ((codePoint + key + keySize) % keySize);
                 //Shift back the value to the characters in question.
                 encrypted += (char) (codePoint + asciiShift);
+            } else {
+                encrypted += message.charAt(i);
             }
         }
 
