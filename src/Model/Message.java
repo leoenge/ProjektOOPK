@@ -32,7 +32,7 @@ public abstract class Message  {
         message = message.replace(">", "&gt;");
     }
 
-    void unEscapeChars() {
+    public void unEscapeChars() {
         if (message == null) {
             return;
         }

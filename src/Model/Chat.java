@@ -48,7 +48,6 @@ public class Chat implements Observer {
     void receiveMessage(Message message, Connection srcConnection) {
         if (message instanceof TextMessage) {
             messages.add((TextMessage) message);
-            message.unEscapeChars();
             //Check if we have multipart conversation
             if (connections.size() > 1) {
                 //Broadcast message to the others.

@@ -112,6 +112,7 @@ public class View implements ActionListener, ItemListener {
 
     public void updateView(Message message) {
         StyledDocument doc = chatPanel.messageHistoryPane.getStyledDocument();
+        message.unEscapeChars();
         if (message instanceof TextMessage) {
             try {
                 //If there is no color specified for the message, just put it in as default
