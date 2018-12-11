@@ -48,7 +48,7 @@ public class Connection extends Observable implements Runnable {
     }
 
     public void sendMessage(Message message) {
-        System.err.println(message.toXML(true));
+        System.err.println("Outgoing: " + message.toXML(true));
         socketWriter.println(message.toXML(true));
     }
     void sendEncryptedMessage(Message message) {
@@ -91,7 +91,6 @@ public class Connection extends Observable implements Runnable {
     void sendNewKeyRequest(String type, String message) throws IllegalStateException {
         KeyRequest keyRequest = new KeyRequest(type, message);
         sendMessage(keyRequest);
-        System.err.println(keyRequest.toXML(true));
     }
     public boolean supportsAES() { return supportsAES; }
     public boolean supportsCaesar() { return supportsCaesar; }
@@ -144,9 +143,9 @@ public class Connection extends Observable implements Runnable {
                     }
 
                     for (Message incMessage : incMessages) {
+                        System.err.println("Incoming: " + incMessage.toXML(true));
                         //Check for aforementioned key response.
                         if (incMessage instanceof KeyResponse && System.currentTimeMillis() - startTime < 60000) {
-                            System.err.println("Key response type: " + ((KeyResponse) incMessage).type);
                             if (((KeyResponse) incMessage).type.toLowerCase().equals("aes")) {
                                 supportsAES = true;
                                 continue;
