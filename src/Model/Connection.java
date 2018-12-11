@@ -90,6 +90,7 @@ public class Connection extends Observable implements Runnable {
     void sendNewKeyRequest(String type, String message) throws IllegalStateException {
         KeyRequest keyRequest = new KeyRequest(type, message);
         sendMessage(keyRequest);
+        System.err.println(keyRequest.toXML(true));
     }
     public boolean supportsAES() { return supportsAES; }
     public boolean supportsCaesar() { return supportsCaesar; }
@@ -127,7 +128,7 @@ public class Connection extends Observable implements Runnable {
              * of the corresponding encryption instances. If not, these instances will be null and the      *
              * encryption type will be considered unsupported.                                              */
             long startTime = System.currentTimeMillis();
-            sendNewKeyRequest("aes", "");
+            sendNewKeyRequest("AES", "");
             sendNewKeyRequest("caesar", "");
 
             while ((inputLine = socketReader.readLine()) != null) {

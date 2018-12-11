@@ -58,7 +58,6 @@ public class Chat implements Observer {
                 byte[] rawKey = srcConnection.AESEncryption.getLocalKey().getEncoded();
 
                 KeyResponse response = new KeyResponse(rawKey, "AES");
-                System.err.println("response: " + response);
                 srcConnection.sendMessage(response);
             } else if (keyRequest.type.toLowerCase().equals("caesar")) {
                 int caesarKey = srcConnection.caesarEncryption.generateRandomKey();
