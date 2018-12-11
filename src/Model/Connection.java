@@ -144,6 +144,7 @@ public class Connection extends Observable implements Runnable {
                     for (Message incMessage : incMessages) {
                         //Check for aforementioned key response.
                         if (incMessage instanceof KeyResponse && System.currentTimeMillis() - startTime < 60000) {
+                            System.err.println("Key response type: " + ((KeyResponse) incMessage).type);
                             if (((KeyResponse) incMessage).type.toLowerCase().equals("aes")) {
                                 supportsAES = true;
                                 continue;
