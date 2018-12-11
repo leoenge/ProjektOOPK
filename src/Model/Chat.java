@@ -12,7 +12,6 @@ public class Chat implements Observer {
     ArrayList<Connection> connections;
     ChatSettings settings;
     ArrayList<TextMessage> messages;
-    Connection fileConnection;
     Model model;
 
     //False if we connected to a remote in this chat, true otherwise.
@@ -41,6 +40,15 @@ public class Chat implements Observer {
     void receiveMessage(Message message, Connection srcConnection){
         if (message instanceof TextMessage) {
             messages.add((TextMessage) message);
+            //Check if we have multipart conversation
+            if (connections.size() > 1) {
+                //Broadcast message to the others.
+                for (Connection connection : connections) {
+                    if (connection != srcConnection) {
+                        connection.sendMessage(message);
+                    }
+                }
+            }
         } else if (message instanceof KeyRequest) {
             KeyRequest keyRequest = (KeyRequest) message;
             if (keyRequest.type.toLowerCase().equals("aes")) {
@@ -50,15 +58,21 @@ public class Chat implements Observer {
                 KeyResponse response = new KeyResponse(rawKey, "AES");
                 srcConnection.sendMessage(response);
             }
-        }
-        //Check if we have multipart conversation
-        if (connections.size() > 1) {
-            //Broadcast message to the others.
-            for (Connection connection : connections) {
-                if (connection != srcConnection) {
-                    connection.sendMessage(message);
-                }
+        } else if (message instanceof FileRequest) {
+            long size = ((FileRequest)message).size;
+            String messageStr = ((FileRequest)message).message;
+            boolean reply = model.view.yesNoRequest("File request for file of size: " + size + "\nwith message: " + messageStr);
+            String replyString = model.view.requestString("Input an answer message here");
+
+            FileResponse fileResponse;
+            if (reply) {
+                fileResponse = new FileResponse(replyString, reply, 10000);
+                srcConnection.sendMessage(fileResponse);
+            } else {
+                fileResponse = new FileResponse(replyString, reply);
+                srcConnection.sendMessage(fileResponse);
             }
+
         }
 
         //If this is the currently active chat, we display the message in the message panel.
