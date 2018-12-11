@@ -53,11 +53,13 @@ public class Chat implements Observer {
             }
         } else if (message instanceof KeyRequest) {
             KeyRequest keyRequest = (KeyRequest) message;
+            System.err.println("Incoming key request type:"  + keyRequest.type.toLowerCase());
             if (keyRequest.type.toLowerCase().equals("aes")) {
                 srcConnection.AESEncryption.generateKey();
                 byte[] rawKey = srcConnection.AESEncryption.getLocalKey().getEncoded();
 
                 KeyResponse response = new KeyResponse(rawKey, "AES");
+                System.err.println(response.toXML(true));
                 srcConnection.sendMessage(response);
             } else if (keyRequest.type.toLowerCase().equals("caesar")) {
                 int caesarKey = srcConnection.caesarEncryption.generateRandomKey();
